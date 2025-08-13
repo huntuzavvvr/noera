@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Admin - Products</title>
+    <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body>
+    <h1>Админка - Товары</h1>
+
+    <h2>Добавить новый товар</h2>
+    <form th:action="@{/admin}" th:object="${product}" method="post">
+        <label for="name">Название:</label>
+        <input type="text" th:field="*{name}" id="name" required />
+        <br/>
+        <label for="price">Цена:</label>
+        <input type="number" step="0.01" th:field="*{price}" id="price" required />
+        <br/>
+        <label for="image_url">URL изображения:</label>
+        <input type="text" th:field="*{image_url}" id="image_url" />
+        <br/>
+        <button type="submit">Добавить</button>
+    </form>
+
+    <h2>Список товаров</h2>
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Цена</th>
+                <th>Изображение</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="prod : ${products}">
+                <td th:text="${prod.id}">1</td>
+                <td th:text="${prod.name}">Name</td>
+                <td th:text="${prod.price}">0.00</td>
+                <td>
+                    <img th:if="${prod.image_url}" th:src="${prod.image_url}" alt="image" width="50" />
+                </td>
+                <td>
+                    <form th:action="@{'/admin/products/delete/' + ${prod.id}}" method="post" 
+                          onsubmit="return confirm('Удалить товар?');">
+                        <button type="submit">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>

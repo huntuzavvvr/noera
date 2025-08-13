@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URBAN EDGE | Premium Streetwear</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        .logo-font {
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 2px;
+        }
+        
+        .hero-banner {
+            height: 90vh;
+            background-size: cover;
+            background-position: center;
+            transition: background-image 1s ease-in-out;
+        }
+        
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .product-overlay {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .product-card:hover .product-overlay {
+            opacity: 1;
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: white;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(10px);
+            background-color: rgba(0, 0, 0, 0.8);
+            transition: all 0.3s ease;
+        }
+        
+        .section-title {
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 3px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease forwards;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Sticky Navigation -->
+    <header class="sticky-nav border-b border-gray-800">
+        <div class="container mx-auto px-4 py-4 flex justify-center items-center">
+            <div class="logo-font text-3xl text-white">
+                <a href="#">NOERA</a>
+            </div>
+            
+            <!-- <div class="flex justify-between items-center">
+                <div class="logo-font text-3xl">
+                    <a href="#" class="text-white">URBAN EDGE</a>
+                </div>
+                
+                <nav class="hidden md:block">
+                    <ul class="flex space-x-8">
+                        <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">BASE</a></li>
+                        <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">BAGGY</a></li>
+                        <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">OUTERWEAR</a></li>
+                        <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">HOODIES</a></li>
+                        <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">TOPS</a></li>
+                        <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">BOTTOMS</a></li>
+                        <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">ACCESSORIES</a></li>
+                        <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">SALE</a></li>
+                    </ul>
+                </nav>
+                
+                <div class="flex items-center space-x-4">
+                    <a href="#" class="text-white"><i class="fas fa-search"></i></a>
+                    <a href="#" class="text-white"><i class="fas fa-shopping-bag"></i></a>
+                    <button class="md:hidden text-white" id="mobile-menu-button">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div> -->
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div class="hidden md:hidden bg-black border-t border-gray-800 py-4" id="mobile-menu">
+            <ul class="flex flex-col space-y-4 px-4">
+                <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">BASE</a></li>
+                <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">BAGGY</a></li>
+                <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">OUTERWEAR</a></li>
+                <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">HOODIES</a></li>
+                <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">TOPS</a></li>
+                <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">BOTTOMS</a></li>
+                <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">ACCESSORIES</a></li>
+                <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">SALE</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="hero-banner animate-fade-in" style="background-image: url('/images/photo_2025-08-10_00-10-35.jpg')">
+        <div class="container mx-auto h-full flex flex-col justify-end pb-20 px-4">
+            <div class="max-w-md">
+                <h1 class="logo-font text-5xl md:text-7xl text-white mb-4">SS24 COLLECTION</h1>
+                <p class="text-white text-lg mb-6">The latest drops from our urban-inspired streetwear line</p>
+                <a href="#" class="inline-block bg-white text-black px-8 py-3 uppercase text-sm tracking-wider font-semibold hover:bg-gray-200 transition-colors">Shop Now</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section class="py-16 px-4">
+        <div class="container mx-auto">
+            <h2 class="section-title text-4xl mb-12 text-center">FEATURED DROPS</h2>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
+                <!-- Product 1 -->
+                <!-- <div class="product-card group">
+                    <div class="relative overflow-hidden mb-4">
+                        <img src="/images/photo_2025-08-05_11-56-05.jpg" 
+                             alt="Oversized Hoodie" 
+                             class="w-full h-auto object-cover">
+                        <div class="product-overlay absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                            <button class="bg-white text-black px-6 py-2 uppercase text-xs tracking-wider font-semibold hover:bg-gray-200 transition-colors">Quick View</button>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-white font-medium mb-1">Oversized Hoodie</h3>
+                        <p class="text-gray-400">$89.99</p>
+                    </div>
+                </div> -->
+                <div class="product-card group" th:each="product : ${products}">
+                    <div class="relative overflow-hidden mb-4 image-container">
+                        <img th:src="@{${product.imageUrl}}" 
+                            th:alt="${product.name}" 
+                            class="w-full h-auto object-cover main-img">
+                        <!-- Вторая картинка при наведении -->
+                        <img th:if="${product.hoverImageUrl != null}" 
+                            th:src="@{${product.hoverImageUrl}}" 
+                            th:alt="${product.name} + ' - hover'" 
+                            class="w-full h-auto object-cover hover-img" />
+                        <!-- <div class="product-overlay absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                            <button class="bg-white text-black px-6 py-2 uppercase text-xs tracking-wider font-semibold hover:bg-gray-200 transition-colors">Quick View</button>
+                        </div> -->
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-white font-medium mb-1" th:text="${product.name}">Product Name</h3>
+                        <p class="text-gray-400" th:text="${product.price + ' р.'}">$994141.99</p>
+                        <a th:href="@{'https://t.me/huntuzavvvr'(text=${'Здравствуйте, хочу заказать товар: ' + product.name})}" target="_blank">Заказать</a>
+                    </div>
+                    
+                </div>
+                
+                
+                <!-- Product 2 -->
+                <!-- <div class="product-card group">
+                    <div class="relative overflow-hidden mb-4">
+                        <img src="https://images.unsplash.com/photo-1527719327859-c6ce80353573?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1964&q=80" 
+                             alt="Cargo Pants" 
+                             class="w-full h-auto object-cover">
+                        <div class="product-overlay absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                            <button class="bg-white text-black px-6 py-2 uppercase text-xs tracking-wider font-semibold hover:bg-gray-200 transition-colors">Quick View</button>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-white font-medium mb-1">Cargo Pants</h3>
+                        <p class="text-gray-400">$129.99</p>
+                    </div>
+                </div> -->
+                
+                <!-- Product 3 -->
+                <!-- <div class="product-card group">
+                    <div class="relative overflow-hidden mb-4">
+                        <img src="https://images.unsplash.com/photo-1527719327859-c6ce80353573?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1964&q=80" 
+                             alt="Graphic Tee" 
+                             class="w-full h-auto object-cover">
+                        <div class="product-overlay absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                            <button class="bg-white text-black px-6 py-2 uppercase text-xs tracking-wider font-semibold hover:bg-gray-200 transition-colors">Quick View</button>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-white font-medium mb-1">Graphic Tee</h3>
+                        <p class="text-gray-400">$49.99</p>
+                    </div>
+                </div> -->
+                
+                <!-- Product 4 -->
+                <!-- <div class="product-card group">
+                    <div class="relative overflow-hidden mb-4">
+                        <img src="https://images.unsplash.com/photo-1527719327859-c6ce80353573?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1964&q=80" 
+                             alt="Denim Jacket" 
+                             class="w-full h-auto object-cover">
+                        <div class="product-overlay absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                            <button class="bg-white text-black px-6 py-2 uppercase text-xs tracking-wider font-semibold hover:bg-gray-200 transition-colors">Quick View</button>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-white font-medium mb-1">Denim Jacket</h3>
+                        <p class="text-gray-400">$149.99</p>
+                    </div>
+                </div> -->
+                
+                <!-- Product 5 -->
+                <!-- <div class="product-card group">
+                    <div class="relative overflow-hidden mb-4">
+                        <img src="https://images.unsplash.com/photo-1527719327859-c6ce80353573?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1964&q=80" 
+                             alt="Bucket Hat" 
+                             class="w-full h-auto object-cover">
+                        <div class="product-overlay absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                            <button class="bg-white text-black px-6 py-2 uppercase text-xs tracking-wider font-semibold hover:bg-gray-200 transition-colors">Quick View</button>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-white font-medium mb-1">Bucket Hat</h3>
+                        <p class="text-gray-400">$39.99</p>
+                    </div>
+                </div> -->
+                
+                <!-- Product 6 -->
+                <!-- <div class="product-card group">
+                    <div class="relative overflow-hidden mb-4">
+                        <img src="https://images.unsplash.com/photo-1527719327859-c6ce80353573?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1964&q=80" 
+                             alt="High-Top Sneakers" 
+                             class="w-full h-auto object-cover">
+                        <div class="product-overlay absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                            <button class="bg-white text-black px-6 py-2 uppercase text-xs tracking-wider font-semibold hover:bg-gray-200 transition-colors">Quick View</button>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-white font-medium mb-1">High-Top Sneakers</h3>
+                        <p class="text-gray-400">$159.99</p>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <!-- <section class="py-16 px-4 bg-gray-900">
+        <div class="container mx-auto max-w-4xl">
+            <h2 class="section-title text-4xl mb-8 text-center">ABOUT URBAN EDGE</h2>
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <img src="https://images.unsplash.com/photo-1527719327859-c6ce80353573?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1964&q=80" 
+                         alt="Brand Story" 
+                         class="w-full h-auto object-cover">
+                </div>
+                <div>
+                    <p class="text-gray-300 mb-4">
+                        Born from the streets, crafted for the culture. URBAN EDGE represents the intersection of urban lifestyle and high-end streetwear.
+                    </p>
+                    <p class="text-gray-300 mb-4">
+                        We don't just make clothes—we create statements. Each piece is designed with attention to detail, quality fabrics, and the urban aesthetic that defines our generation.
+                    </p>
+                    <p class="text-gray-300">
+                        Our mission is simple: to provide premium streetwear that stands out without shouting, that makes an impact without compromising comfort, and that represents the edge of urban fashion.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section> -->
+
+    <!-- Contact Section -->
+    <!-- <section class="py-16 px-4">
+        <div class="container mx-auto max-w-4xl">
+            <h2 class="section-title text-4xl mb-12 text-center">CONNECT WITH US</h2>
+            
+            <div class="grid md:grid-cols-2 gap-12">
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">STAY UPDATED</h3>
+                    <p class="text-gray-400 mb-6">
+                        Join our Telegram channel for exclusive drops, early access, and streetwear culture content.
+                    </p>
+                    <a href="#" class="inline-flex items-center bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600 transition-colors">
+                        <i class="fab fa-telegram mr-2"></i> Join Telegram
+                    </a>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">FOLLOW US</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-white hover:text-gray-400 transition-colors text-2xl"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white hover:text-gray-400 transition-colors text-2xl"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white hover:text-gray-400 transition-colors text-2xl"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" class="text-white hover:text-gray-400 transition-colors text-2xl"><i class="fab fa-youtube"></i></a>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold mt-8 mb-4">CONTACT</h3>
+                    <p class="text-gray-400">info@urbanedge.com</p>
+                    <p class="text-gray-400">+1 (555) 123-4567</p>
+                </div>
+            </div>
+        </div>
+    </section> -->
+
+    <!-- Footer -->
+    <!-- <footer class="py-8 px-4 border-t border-gray-800">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="logo-font text-2xl mb-4 md:mb-0">
+                    <a href="#" class="text-white">URBAN EDGE</a>
+                </div>
+                
+                <div class="text-gray-400 text-sm">
+                    <p>&copy; 2023 URBAN EDGE. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer> -->
+    <footer class="bg-black border-t border-gray-800 py-12 px-6">
+  <div class="container mx-auto max-w-6xl grid grid-cols-1 sm:grid-cols-3 gap-8 text-gray-400 text-sm font-medium">
+    <!-- Личный кабинет -->
+    <!-- <div>
+      <h3 class="text-white font-semibold mb-4 uppercase tracking-wide">Личный кабинет</h3>
+      <p class="mb-4 leading-relaxed">
+        Просматривайте историю заказов и получайте кешбек бонусами за каждый заказ
+      </p>
+      <a href="/profile" class="inline-block bg-white text-black px-6 py-2 uppercase tracking-wide font-semibold hover:bg-gray-200 transition-colors">
+        Войти
+      </a>
+    </div> -->
+
+    <!-- Меню -->
+    <div>
+      <h3 class="text-white font-semibold mb-4 uppercase tracking-wide">Меню</h3>
+      <ul class="space-y-3">
+        <li><a href="/gallery" class="hover:text-white transition-colors">Галерея</a></li>
+        <li><a href="/deliveryinfo" class="hover:text-white transition-colors">Доставка</a></li>
+        <li><a href="/refund" class="hover:text-white transition-colors">Возврат</a></li>
+        <li><a href="/about" class="hover:text-white transition-colors">О бренде</a></li>
+      </ul>
+    </div>
+
+    <!-- Контакты и соцсети -->
+    <div>
+      <h3 class="text-white font-semibold mb-4 uppercase tracking-wide">Контакты</h3>
+      <p class="mb-2">info@noera.com</p>
+      <p class="mb-6">+1 (111) 111-1111</p>
+
+      <div class="flex space-x-6 text-2xl">
+        <a href="#" class="hover:text-white transition-colors" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <!-- <a href="#" class="hover:text-white transition-colors" aria-label="Twitter"><i class="fab fa-twitter"></i></a> -->
+        <a href="#" class="hover:text-white transition-colors" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+        <!-- <a href="#" class="hover:text-white transition-colors" aria-label="YouTube"><i class="fab fa-youtube"></i></a> -->
+        <a href="#" class="hover:text-white transition-colors" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-12 text-center text-gray-600 text-xs">
+    &copy; 2023 URBAN EDGE. Все права защищены.
+  </div>
+</footer>
+
+
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Hero banner image rotation (example)
+        const heroBanner = document.querySelector('.hero-banner');
+        const bannerImages = [
+            'https://images.unsplash.com/photo-1551232864-3f0890e580d9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80',
+            'https://images.unsplash.com/photo-1527719327859-c6ce80353573?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1964&q=80',
+            'https://images.unsplash.com/photo-1527719327859-c6ce80353573?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1964&q=80'
+        ];
+        
+        let currentBannerIndex = 0;
+        
+        function changeBannerImage() {
+            currentBannerIndex = (currentBannerIndex + 1) % bannerImages.length;
+            heroBanner.style.backgroundImage = `url('${bannerImages[currentBannerIndex]}')`;
+        }
+        
+        // Change banner every 5 seconds
+        setInterval(changeBannerImage, 5000);
+
+        // Animate elements on scroll
+        const animateOnScroll = () => {
+            const elements = document.querySelectorAll('.animate-fade-in');
+            
+            elements.forEach(element => {
+                const elementPosition = element.getBoundingClientRect().top;
+                const screenPosition = window.innerHeight / 1.3;
+                
+                if (elementPosition < screenPosition) {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }
+            });
+        };
+        
+        window.addEventListener('scroll', animateOnScroll);
+        window.addEventListener('load', animateOnScroll);
+    </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=HuntuZist/brand" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+</html>
