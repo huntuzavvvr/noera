@@ -30,6 +30,25 @@ public class ShopController {
         model.addAttribute("products", products);
         return "s";
     }
+
+    @GetMapping("/gallery")
+    public String getGallery() {
+        return "redirect:/";
+    }
+
+    @GetMapping("/deliveryinfo")
+    public String getDelivery() {
+        return "redirect:/";
+    }
+
+    @GetMapping("/refund")
+    public String getRefund() {
+        return "redirect:/";
+    }
+    @GetMapping("/about")
+    public String getAbout() {
+        return "redirect:/";
+    }
     
     // @GetMapping()
     // public String getMethodName(@RequestParam String param) {
