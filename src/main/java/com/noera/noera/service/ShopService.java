@@ -3,6 +3,7 @@ package com.noera.noera.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.noera.noera.model.Product;
 import com.noera.noera.repository.ShopRepository;

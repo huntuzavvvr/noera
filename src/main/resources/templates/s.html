@@ -220,15 +220,15 @@
                     </div>
                 </div> -->
                 <div class="product-card group" th:each="product : ${products}">
+                    <a th:href="@{'/description'}" class="block">
                     <div class="relative overflow-hidden mb-4 image-container">
                         <img th:src="@{${product.imageUrl}}" 
                             th:alt="${product.name}" 
                             class="w-full h-auto object-cover main-img">
                         <!-- Вторая картинка при наведении -->
-                        <img th:if="${product.hoverImageUrl != null}" 
-                            th:src="@{${product.hoverImageUrl}}" 
-                            th:alt="${product.name} + ' - hover'" 
-                            class="w-full h-auto object-cover hover-img" />
+                        <img th:src="@{${product.hoverImageUrl != null ? product.hoverImageUrl : product.imageUrl}}" 
+                        th:alt="${product.name} + ' - hover'" 
+                        class="w-full h-full object-cover hover-img" />
                         <!-- <div class="product-overlay absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                             <button class="bg-white text-black px-6 py-2 uppercase text-xs tracking-wider font-semibold hover:bg-gray-200 transition-colors">Quick View</button>
                         </div> -->
@@ -238,7 +238,7 @@
                         <p class="text-gray-400 product-price" th:text="${product.price + ' р.'}">$994141.99</p>
                         <a class="product-link" th:href="@{'https://t.me/huntuzavvvr'(text=${'Здравствуйте, хочу заказать товар: ' + product.name})}" target="_blank">Заказать</a>
                     </div>
-                    
+                    </a>
                 </div>
                 
                 
