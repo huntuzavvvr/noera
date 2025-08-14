@@ -9,6 +9,9 @@ import com.noera.noera.service.ShopService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -57,12 +60,32 @@ public class ShopController {
         return "redirect:/";
     }
 
+    // @GetMapping("/description/{id}")
+    // public String getDescription(@PathVariable Integer id, Model model) {
+    //     Product product = service.findById(id);
+    //     model.addAttribute("product", product);
+    //     return "description";
+    // }
     @GetMapping("/description/{id}")
     public String getDescription(@PathVariable Integer id, Model model) {
         Product product = service.findById(id);
         model.addAttribute("product", product);
+
+        // Получаем все товары с таким же названием
+        List<Product> sameNameProducts = service.findByName(product.getName());
+
+        // Извлекаем уникальные цвета
+        Set<String> colors = sameNameProducts.stream()
+            .map(Product::getColor)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+
+        model.addAttribute("availableColors", colors);
+        for (var elem : colors){
+            System.out.println(elem);
+        }
         return "description";
-    }
+}
     
     @GetMapping("/product/{name}/color/{color}")
     @ResponseBody

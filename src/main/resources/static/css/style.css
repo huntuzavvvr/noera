@@ -188,3 +188,26 @@ p {
 .product-link:hover {
   background-color: #f0f0f0;
 }
+
+.color-option {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #dc1111; /* серая обводка по умолчанию */
+    transition: all 0.3s ease;
+}
+
+.color-option.selected {
+    border-color: white; /* выделенный цвет */
+    transform: scale(1.1);
+}
+
+.color-option.white { 
+  background-color: #fff; 
+  /* border: 1px solid #e5e7eb; */
+}
+.color-option.black { 
+  background-color: #000; 
+  /* border: 1px solid #333; */
+}

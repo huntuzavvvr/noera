@@ -35,5 +35,7 @@ public class ShopService {
     return repository.findByNameAndColor(name, color)
             .orElseThrow(() -> new RuntimeException("Товар не найден"));
 }
-
+    public List<Product> findByName(String name) {
+        return repository.findByName(name);
+    }
 }

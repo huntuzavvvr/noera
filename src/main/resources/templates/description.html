@@ -15,7 +15,7 @@
 
         .color-option {
             width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
-            border: 2px solid transparent; transition: all 0.3s ease;
+            border: 1px solid #333; transition: all 0.3s ease;
         }
         .color-option.selected { border-color: white; transform: scale(1.1); }
         .color-option.white { background-color: #fff; border: 1px solid #e5e7eb; }
@@ -82,14 +82,38 @@
             </div>
 
             <!-- Color Selection -->
-            <div class="mb-8">
+            <!-- <div class="mb-8">
                 <h3 class="text-lg font-semibold mb-3">ЦВЕТ</h3>
                 <div class="flex space-x-3">
                     <div class="color-option white selected" data-color="white" onclick="selectColor(this)"></div>
                     <div class="color-option black" data-color="black" onclick="selectColor(this)"></div>
                 </div>
-            </div>
-
+            </div> -->
+            <div class="mb-8">
+    <h3 class="text-lg font-semibold mb-3">ЦВЕТ</h3>
+    <div class="flex space-x-3">
+        <div th:each="color : ${availableColors}" 
+             class="color-option rounded"
+             th:classappend="${color == product.color} ? ' selected' : ''"
+             th:data-color="${color}"
+             th:style="'background-color:' + (${color} == 'white' ? '#fff' : (${color} == 'black' ? '#000' : color))"
+             onclick="selectColor(this)">
+        </div>
+    </div>
+</div>
+<!--             
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold mb-3">ЦВЕТ</h3>
+                <div class="flex space-x-3">
+                    <div th:each="color : ${availableColors}" 
+                        class="color-option rounded"
+                        th:classappend="${color == product.color} ? 'selected' : ''"
+                        th:data-color="${color}"
+                        th:style="'background-color:' + (${color} == 'white' ? '#fff' : ${color} == 'black' ? '#000' : ${color})"
+                        onclick="selectColor(this)">
+                    </div>
+                </div>
+            </div> -->
             <!-- Size Selection -->
             <div class="mb-8">
                 <h3 class="text-lg font-semibold mb-3">РАЗМЕР</h3>
