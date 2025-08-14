@@ -220,24 +220,27 @@
                     </div>
                 </div> -->
                 <div class="product-card group" th:each="product : ${products}">
-                    <a th:href="@{'/description'}" class="block">
-                    <div class="relative overflow-hidden mb-4 image-container">
-                        <img th:src="@{${product.imageUrl}}" 
-                            th:alt="${product.name}" 
-                            class="w-full h-auto object-cover main-img">
-                        <!-- Вторая картинка при наведении -->
-                        <img th:src="@{${product.hoverImageUrl != null ? product.hoverImageUrl : product.imageUrl}}" 
-                        th:alt="${product.name} + ' - hover'" 
-                        class="w-full h-full object-cover hover-img" />
-                        <!-- <div class="product-overlay absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                            <button class="bg-white text-black px-6 py-2 uppercase text-xs tracking-wider font-semibold hover:bg-gray-200 transition-colors">Quick View</button>
-                        </div> -->
-                    </div>
-                    <div class="text-center">
-                        <h3 class="text-white font-medium mb-1 product-title" th:text="${product.name}">Product Name</h3>
-                        <p class="text-gray-400 product-price" th:text="${product.price + ' р.'}">$994141.99</p>
-                        <a class="product-link" th:href="@{'https://t.me/huntuzavvvr'(text=${'Здравствуйте, хочу заказать товар: ' + product.name})}" target="_blank">Заказать</a>
-                    </div>
+                    <a th:href="@{'/description/' + ${product.id}}" class="block">
+                        <div class="relative overflow-hidden mb-4 image-container">
+                            <img th:src="@{${product.imageUrl}}" 
+                                th:alt="${product.name}" 
+                                class="w-full h-auto object-cover main-img">
+                            <img th:src="@{${product.hoverImageUrl != null ? product.hoverImageUrl : product.imageUrl}}" 
+                                th:alt="${product.name} + ' - hover'" 
+                                class="w-full h-full object-cover hover-img" />
+                        </div>
+                        <div class="text-center">
+                            <h3 class="text-white font-medium mb-1 product-title" th:text="${product.name}"></h3>
+                            <p class="text-gray-400 product-price" th:text="${product.price + ' р.'}"></p>
+                        </div>
+                    </a>
+                    <!-- <a class="product-link block mt-2" 
+                    th:href="@{'https://t.me/huntuzavvvr'(text=${'Здравствуйте, хочу заказать товар: ' + product.name})}" 
+                    target="_blank">Заказать</a> -->
+                    <a class="product-link block mt-2 bg-white text-black py-2 px-4 rounded text-center 
+                            hover:bg-gray-200 transition-colors"
+                    th:href="@{'/description/' + ${product.id}}">
+                    Заказать
                     </a>
                 </div>
                 

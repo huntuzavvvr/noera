@@ -1,229 +1,213 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOERA - Выбор товара</title>
+    <title th:text="${product.name}">NOERA - Выбор товара</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700&display=swap');
-        
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #000;
-            color: #fff;
-            overflow-x: hidden;
-        }
-        
-        .logo-font {
-            font-family: 'Bebas Neue', sans-serif;
-            letter-spacing: 2px;
-        }
-        
-        .section-title {
-            font-family: 'Bebas Neue', sans-serif;
-            letter-spacing: 3px;
-        }
-        
-        /* Стили для выбора цвета */
+        body { font-family: 'Montserrat', sans-serif; background-color: #000; color: #fff; overflow-x: hidden; }
+        .logo-font { font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; }
+        .section-title { font-family: 'Bebas Neue', sans-serif; letter-spacing: 3px; }
+
         .color-option {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
+            width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+            border: 2px solid transparent; transition: all 0.3s ease;
         }
-        
-        .color-option.selected {
-            border-color: white;
-            transform: scale(1.1);
-        }
-        
-        .color-option.white {
-            background-color: #fff;
-            border: 1px solid #e5e7eb;
-        }
-        
-        .color-option.black {
-            background-color: #000;
-            border: 1px solid #333;
-        }
-        
-        /* Стили для выбора размера */
+        .color-option.selected { border-color: white; transform: scale(1.1); }
+        .color-option.white { background-color: #fff; border: 1px solid #e5e7eb; }
+        .color-option.black { background-color: #000; border: 1px solid #333; }
+
         .size-option {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 50px;
-            height: 50px;
-            border: 1px solid #333;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: center;
+            width: 50px; height: 50px; border: 1px solid #333;
+            cursor: pointer; transition: all 0.3s ease;
         }
-        
-        .size-option.selected {
-            border-color: white;
-            background-color: rgba(255,255,255,0.1);
-        }
-        
-        .size-option.unavailable {
-            color: #555;
-            border-color: #333;
-            text-decoration: line-through;
-            cursor: not-allowed;
-        }
-        
-        /* Галерея изображений */
-        .product-gallery {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .thumbnail {
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity 0.3s ease;
-        }
-        
-        .thumbnail:hover, .thumbnail.active {
-            opacity: 1;
-        }
-        
-        .main-image {
-            aspect-ratio: 1/1;
-            object-fit: cover;
-        }
+        .size-option.selected { border-color: white; background-color: rgba(255,255,255,0.1); }
+        .size-option.unavailable { color: #555; border-color: #333; text-decoration: line-through; cursor: not-allowed; }
+
+        .product-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
+        .thumbnail { cursor: pointer; opacity: 0.7; transition: opacity 0.3s ease; }
+        .thumbnail:hover, .thumbnail.active { opacity: 1; }
+        .main-image { aspect-ratio: 1/1; object-fit: cover; }
     </style>
 </head>
 <body class="antialiased">
-    <!-- Header -->
-    <header class="sticky top-0 z-50 border-b border-gray-800 bg-black bg-opacity-90">
-        <div class="container mx-auto px-4 py-4 flex items-center">
-            <a href="/" class="flex items-center">
-                <span class="logo-font text-3xl text-white">NOERA</span>
+
+<!-- Header -->
+<header class="sticky top-0 z-50 border-b border-gray-800 bg-black bg-opacity-90">
+    <div class="container mx-auto px-4 py-4 flex items-center">
+        <a href="/" class="flex items-center">
+            <span class="logo-font text-3xl text-white">NOERA</span>
+        </a>
+        <div class="ml-auto flex space-x-4">
+            <a href="https://t.me/noeraprod" class="text-white hover:text-gray-400 text-xl">
+                <i class="fab fa-telegram"></i>
             </a>
-            <div class="ml-auto flex space-x-4">
-                <a href="https://t.me/noeraprod" class="text-white hover:text-gray-400 text-xl">
-                    <i class="fab fa-telegram"></i>
-                </a>
+        </div>
+    </div>
+</header>
+
+<!-- Product Section -->
+<section class="container mx-auto px-4 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <!-- Product Images -->
+        <div>
+            <div class="bg-gray-900 rounded-lg overflow-hidden">
+                <img id="mainProductImage"
+                     th:data-name="${product.name}"
+                     th:src="@{${product.imageUrl}}" 
+                     th:alt="${product.name}" 
+                     class="w-full main-image">
+            </div>
+            <div id="productGallery" class="product-gallery">
+                <img th:src="@{${product.imageUrl}}" class="thumbnail rounded active"
+                     onclick="changeMainImage(this, this.src)">
+                <img th:if="${product.hoverImageUrl != null}" th:src="@{${product.hoverImageUrl}}" 
+                     class="thumbnail rounded" onclick="changeMainImage(this, this.src)">
             </div>
         </div>
-    </header>
 
-    <!-- Product Section -->
-    <section class="container mx-auto px-4 py-12">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <!-- Product Images -->
-            <div>
-                <div class="bg-gray-900 rounded-lg overflow-hidden">
-                    <img id="mainProductImage" src="/images/product-main.jpg" alt="Tee shirt" class="w-full main-image">
-                </div>
-                <div class="product-gallery">
-                    <img src="/images/product-1.jpg" class="thumbnail rounded active" onclick="changeMainImage(this)">
-                    <img src="/images/product-2.jpg" class="thumbnail rounded" onclick="changeMainImage(this)">
-                    <img src="/images/product-3.jpg" class="thumbnail rounded" onclick="changeMainImage(this)">
-                    <img src="/images/product-4.jpg" class="thumbnail rounded" onclick="changeMainImage(this)">
+        <!-- Product Info -->
+        <div>
+            <h1 class="section-title text-4xl mb-2" th:text="${product.name}"></h1>
+
+            <div class="flex items-center mb-6">
+                <span id="price" class="text-2xl font-bold mr-4"
+                      th:text="${product.price + ' р.'}"></span>
+                <span class="text-green-500 text-sm">В наличии</span>
+            </div>
+
+            <!-- Color Selection -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold mb-3">ЦВЕТ</h3>
+                <div class="flex space-x-3">
+                    <div class="color-option white selected" data-color="white" onclick="selectColor(this)"></div>
+                    <div class="color-option black" data-color="black" onclick="selectColor(this)"></div>
                 </div>
             </div>
-            
-            <!-- Product Info -->
-            <div>
-                <h1 class="section-title text-4xl mb-2">NOERA футболка</h1>
-                <p class="text-gray-400 text-lg mb-6">Футболка</p>
-                
-                <div class="flex items-center mb-6">
-                    <span class="text-2xl font-bold mr-4">4 990 ₽</span>
-                    <span class="text-green-500 text-sm">В наличии</span>
+
+            <!-- Size Selection -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold mb-3">РАЗМЕР</h3>
+                <div class="grid grid-cols-5 gap-3 max-w-md">
+                    <div class="size-option selected" onclick="selectSize(this)">XS</div>
+                    <div class="size-option" onclick="selectSize(this)">S</div>
+                    <div class="size-option" onclick="selectSize(this)">M</div>
+                    <div class="size-option" onclick="selectSize(this)">L</div>
+                    <div class="size-option unavailable">XL</div>
                 </div>
-                
-                <!-- Color Selection -->
-                <div class="mb-8">
-                    <h3 class="text-lg font-semibold mb-3">ЦВЕТ</h3>
-                    <div class="flex space-x-4">
-                        <div class="color-option white selected" onclick="selectColor(this, 'white')"></div>
-                        <div class="color-option black" onclick="selectColor(this, 'black')"></div>
-                    </div>
-                </div>
-                
-                <!-- Size Selection -->
-                <div class="mb-8">
-                    <h3 class="text-lg font-semibold mb-3">РАЗМЕР</h3>
-                    <div class="grid grid-cols-5 gap-3 max-w-md">
-                        <div class="size-option selected" onclick="selectSize(this)">XS</div>
-                        <div class="size-option" onclick="selectSize(this)">S</div>
-                        <div class="size-option" onclick="selectSize(this)">M</div>
-                        <div class="size-option" onclick="selectSize(this)">L</div>
-                        <div class="size-option unavailable">XL</div>
-                    </div>
-                    <a href="#" class="inline-block text-gray-400 text-sm mt-3 hover:text-white">Таблица размеров</a>
-                </div>
-                
-                <!-- Add to Cart Button -->
-                <button class="w-full bg-white text-black py-4 uppercase font-bold tracking-wider hover:bg-gray-200 transition-colors mb-6">
-                    ДОБАВИТЬ В КОРЗИНУ
-                </button>
-                
-                <!-- Product Details -->
-                <div class="border-t border-gray-800 pt-6">
-                    <h3 class="text-lg font-semibold mb-3">ОПИСАНИЕ</h3>
-                    <p class="text-gray-400 mb-4">
-                        Футболка с принтом
-                    </p>
-                    <ul class="text-gray-400 space-y-2">
-                        <li><i class="fas fa-check text-white mr-2"></i> Прямой крой</li>
-                        <li><i class="fas fa-check text-white mr-2"></i> Усиленные швы</li>
-                        <li><i class="fas fa-check text-white mr-2"></i> Высококачественная печать</li>
-                    </ul>
-                </div>
+                <a href="#" class="inline-block text-gray-400 text-sm mt-3 hover:text-white">Таблица размеров</a>
+            </div>
+
+            <!-- Add to Cart Button -->
+            <!-- <button class="w-full bg-white text-black py-4 uppercase font-bold tracking-wider hover:bg-gray-200 transition-colors mb-6">
+                ДОБАВИТЬ В КОРЗИНУ
+            </button> -->
+            <button id="orderButton"
+                class="w-full bg-white text-black py-4 uppercase font-bold tracking-wider hover:bg-gray-200 transition-colors mb-6">
+                ЗАКАЗАТЬ
+            </button>
+            <!-- Product Details -->
+            <div class="border-t border-gray-800 pt-6">
+                <h3 class="text-lg font-semibold mb-3">ОПИСАНИЕ</h3>
+                <ul class="text-gray-400 space-y-2">
+                    <li><i class="fas fa-check text-white mr-2"></i> Прямой крой</li>
+                    <li><i class="fas fa-check text-white mr-2"></i> Усиленные швы</li>
+                    <li><i class="fas fa-check text-white mr-2"></i> Высококачественная печать</li>
+                </ul>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Footer -->
-    <footer class="bg-black border-t border-gray-800 py-12 px-6">
-        <div class="container mx-auto text-center text-gray-400 text-sm">
-            <p>© 2025 NOERA. Все права защищены.</p>
-            <div class="mt-4 flex justify-center space-x-6">
-                <a href="/deliveryinfo" class="hover:text-white">Доставка</a>
-                <a href="/refund" class="hover:text-white">Возврат</a>
-                <a href="/about" class="hover:text-white">О бренде</a>
-            </div>
+<!-- Footer -->
+<footer class="bg-black border-t border-gray-800 py-12 px-6">
+    <div class="container mx-auto text-center text-gray-400 text-sm">
+        <p>© 2025 NOERA. Все права защищены.</p>
+        <div class="mt-4 flex justify-center space-x-6">
+            <a href="/deliveryinfo" class="hover:text-white">Доставка</a>
+            <a href="/refund" class="hover:text-white">Возврат</a>
+            <a href="/about" class="hover:text-white">О бренде</a>
         </div>
-    </footer>
+    </div>
+</footer>
 
-    <script>
-        // Change main product image when thumbnail is clicked
-        function changeMainImage(thumb) {
-            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
-            thumb.classList.add('active');
-            document.getElementById('mainProductImage').src = thumb.src;
-        }
-        
-        // Select color
-        function selectColor(element, color) {
-            document.querySelectorAll('.color-option').forEach(c => c.classList.remove('selected'));
-            element.classList.add('selected');
-            
-            // Here you would typically update product images based on color
-            console.log('Selected color:', color);
-        }
-        
-        // Select size
-        function selectSize(element) {
-            if(element.classList.contains('unavailable')) return;
-            
-            document.querySelectorAll('.size-option').forEach(s => s.classList.remove('selected'));
-            element.classList.add('selected');
-        }
-        
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            // You could add more initialization code here
-        });
-    </script>
+<script>
+    function changeMainImage(thumb, imageUrl) {
+        document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+        thumb.classList.add('active');
+        document.getElementById('mainProductImage').src = imageUrl;
+    }
+
+    function selectColor(element) {
+        document.querySelectorAll('.color-option').forEach(c => c.classList.remove('selected'));
+        element.classList.add('selected');
+
+        const color = element.dataset.color;
+        const productName = document.getElementById('mainProductImage').dataset.name;
+
+        fetch(`/product/${productName}/color/${color}`)
+            .then(res => res.json())
+            .then(product => {
+                // Основное изображение
+                document.getElementById('mainProductImage').src = product.imageUrl;
+
+                // Миниатюры
+                const gallery = document.getElementById('productGallery');
+                gallery.innerHTML = '';
+                if(product.imageUrl){
+                    const thumb1 = document.createElement('img');
+                    thumb1.src = product.imageUrl;
+                    thumb1.classList.add('thumbnail', 'rounded', 'active');
+                    thumb1.onclick = () => changeMainImage(thumb1, product.imageUrl);
+                    gallery.appendChild(thumb1);
+                }
+                if(product.hoverImageUrl){
+                    const thumb2 = document.createElement('img');
+                    thumb2.src = product.hoverImageUrl;
+                    thumb2.classList.add('thumbnail', 'rounded');
+                    thumb2.onclick = () => changeMainImage(thumb2, product.hoverImageUrl);
+                    gallery.appendChild(thumb2);
+                }
+
+                // Цена
+                document.getElementById('price').textContent = product.price + ' р.';
+            })
+            .catch(err => console.error('Ошибка загрузки товара:', err));
+    }
+
+    function selectSize(element) {
+        if(element.classList.contains('unavailable')) return;
+        document.querySelectorAll('.size-option').forEach(s => s.classList.remove('selected'));
+        element.classList.add('selected');
+    }
+    document.getElementById('orderButton').addEventListener('click', function() {
+    const productName = document.getElementById('mainProductImage').dataset.name;
+
+    // Получаем выбранный цвет
+    const colorElement = document.querySelector('.color-option.selected');
+    const color = colorElement ? colorElement.dataset.color : '';
+
+    // Получаем выбранный размер
+    const sizeElement = document.querySelector('.size-option.selected');
+    const size = sizeElement ? sizeElement.textContent : '';
+
+    // Составляем сообщение
+    const message = `Здравствуйте! Я хочу заказать товар:\nНазвание: ${productName}\nЦвет: ${color}\nРазмер: ${size}`;
+
+    // Ссылка на Telegram (замени на свой username)
+    const telegramUsername = 'huntuzavvvr'; // <-- сюда свой ник Telegram
+    const telegramLink = `https://t.me/${telegramUsername}?text=${encodeURIComponent(message)}`;
+
+    // Переходим по ссылке
+    window.open(telegramLink, '_blank');
+});
+
+</script>
+
 </body>
 </html>

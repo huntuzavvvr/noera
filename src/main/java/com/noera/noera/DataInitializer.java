@@ -27,13 +27,15 @@ public class DataInitializer implements CommandLineRunner{
             Product product1 = new Product();
             product1.setName("noera_base");
             product1.setPrice(999);
-            product1.setImageUrl("/images/1_1.png");
-            product1.setHoverImageUrl("/images/1_2.png");
+            product1.setImageUrl("/images/white_1.png");
+            product1.setHoverImageUrl("/images/white_2.png");
+            product1.setColor("white");
             Product product2 = new Product();
             product2.setName("noera_base");
             product2.setPrice(1199);
-            product2.setImageUrl("/images/2_1.png");
-            product2.setHoverImageUrl("/images/2_2.png");
+            product2.setImageUrl("/images/black_1.png");
+            product2.setHoverImageUrl("/images/black_2.png");
+            product2.setColor("black");
             repository.save(product1);
             repository.save(product2);
         }

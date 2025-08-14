@@ -18,4 +18,5 @@ public class Product {
     private Integer price;
     private String imageUrl;
     private String hoverImageUrl;
+    private String color;
 }

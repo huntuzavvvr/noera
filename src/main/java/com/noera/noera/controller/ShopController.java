@@ -6,12 +6,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.noera.noera.model.Product;
 import com.noera.noera.service.ShopService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -53,12 +57,18 @@ public class ShopController {
         return "redirect:/";
     }
 
-    @GetMapping("/description")
-    public String getDescription() {
-        
+    @GetMapping("/description/{id}")
+    public String getDescription(@PathVariable Integer id, Model model) {
+        Product product = service.findById(id);
+        model.addAttribute("product", product);
         return "description";
     }
     
+    @GetMapping("/product/{name}/color/{color}")
+    @ResponseBody
+    public Product getProductByNameAndColor(@PathVariable String name, @PathVariable String color) {
+        return service.findByNameAndColor(name, color);
+    }
     
     // @GetMapping()
     // public String getMethodName(@RequestParam String param) {
