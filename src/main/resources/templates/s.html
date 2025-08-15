@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NOERA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700&display=swap');
         
@@ -26,7 +25,6 @@
             height: 90vh;
             background-size: cover;
             background-position: center;
-            transition: background-image 1s ease-in-out;
         }
         
         .product-card {
@@ -37,12 +35,28 @@
             transform: translateY(-5px);
         }
         
-        .product-overlay {
+        .image-container {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .main-img {
+            transition: opacity 0.3s ease;
+        }
+        
+        .hover-img {
+            position: absolute;
+            top: 0;
+            left: 0;
             opacity: 0;
             transition: opacity 0.3s ease;
         }
         
-        .product-card:hover .product-overlay {
+        .product-card:hover .main-img {
+            opacity: 0;
+        }
+        
+        .product-card:hover .hover-img {
             opacity: 1;
         }
         
@@ -69,7 +83,6 @@
             position: sticky;
             top: 0;
             z-index: 50;
-            /* backdrop-filter: blur(10px); */
             background-color: rgba(0, 0, 0, 0.8);
             transition: all 0.3s ease;
         }
@@ -79,14 +92,6 @@
             letter-spacing: 3px;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .animate-fade-in {
-            animation: fadeIn 0.8s ease forwards;
-        }
         .slide-menu {
             position: fixed;
             top: 0;
@@ -104,22 +109,6 @@
             left: 0;
         }
         
-        .slide-menu ul li {
-            margin-bottom: 1rem;
-        }
-        
-        .slide-menu ul li a {
-            color: #fff;
-            font-size: 1rem;
-            text-transform: uppercase;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-        
-        .slide-menu ul li a:hover {
-            color: #ccc;
-        }
-        
         .overlay {
             position: fixed;
             top: 0;
@@ -134,6 +123,15 @@
         .overlay.active {
             display: block;
         }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease forwards;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -144,22 +142,16 @@
                 <i class="fas fa-bars text-xl"></i>
             </button>
             <div class="logo-font text-3xl text-white flex-grow text-center">
-                <a href="#">NOERA</a>
+                <a href="/">NOERA</a>
             </div>
-            <!-- Соцсети справа -->
-        <div class="flex space-x-4">
-            <!-- <a href="#" class="text-white hover:text-gray-400 transition-colors text-xl" aria-label="Instagram">
-                <i class="fab fa-instagram"></i>
-            </a>
-            <a href="#" class="text-white hover:text-gray-400 transition-colors text-xl" aria-label="TikTok">
-                <i class="fab fa-tiktok"></i>
-            </a> -->
-            <a href="https://t.me/noeraprod" class="text-white hover:text-gray-400 transition-colors text-xl" aria-label="Telegram">
-                <i class="fab fa-telegram"></i>
-            </a>
+            <div class="flex space-x-4">
+                <a href="https://t.me/noeraprod" class="text-white hover:text-gray-400 transition-colors text-xl" aria-label="Telegram">
+                    <i class="fab fa-telegram"></i>
+                </a>
+            </div>
         </div>
-            
-        </div>
+        
+        <!-- Slide Menu -->
         <div class="slide-menu" id="slide-menu">
             <button class="text-white mb-6 ml-auto block" id="close-menu-button">
                 <i class="fas fa-times text-xl"></i>
@@ -172,370 +164,118 @@
             </ul>
         </div>
         <div class="overlay" id="overlay"></div>
-        <!-- Mobile Menu -->
-        <div class="hidden md:hidden bg-black border-t border-gray-800 py-4" id="mobile-menu">
-            <ul class="flex flex-col space-y-4 px-4">
-                <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">BASE</a></li>
-                <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">BAGGY</a></li>
-                <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">OUTERWEAR</a></li>
-                <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">HOODIES</a></li>
-                <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">TOPS</a></li>
-                <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">BOTTOMS</a></li>
-                <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">ACCESSORIES</a></li>
-                <li><a href="#" class="nav-link text-white text-sm uppercase tracking-wider">SALE</a></li>
-            </ul>
-        </div>
     </header>
 
     <!-- Hero Banner -->
     <section class="hero-banner animate-fade-in mx-6 md:mx-12 lg:mx-24" style="background-image: url('/images/photo_2025-08-10_00-10-35.jpg')">
-    <div class="container mx-auto h-full flex flex-col justify-end pb-20 px-4"> <!-- Измените здесь -->
-        <div class="max-w-md">
-            <!-- <h1 class="logo-font text-5xl md:text-7xl text-white mb-4">SS24 COLLECTION</h1>
-            <p class="text-white text-lg mb-6">The latest drops from our urban-inspired streetwear line</p> -->
-            <a href="#" class="inline-block bg-white text-black px-8 py-3 uppercase text-sm tracking-wider font-semibold hover:bg-gray-200 transition-colors">ПЕРЕЙТИ К ПОКУПКАМ</a>
-        </div>
-    </div>
-</section>
-
-    <!-- Featured Products -->
-    <section class="py-16 px-4">
-        <div class="container mx-auto">
-            <h2 class="section-title text-4xl mb-12 text-center">НАША КОЛЛЕКЦИЯ</h2>
-            
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
-                <!-- Product 1 -->
-                <!-- <div class="product-card group">
-                    <div class="relative overflow-hidden mb-4">
-                        <img src="/images/photo_2025-08-05_11-56-05.jpg" 
-                             alt="Oversized Hoodie" 
-                             class="w-full h-auto object-cover">
-                        <div class="product-overlay absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                            <button class="bg-white text-black px-6 py-2 uppercase text-xs tracking-wider font-semibold hover:bg-gray-200 transition-colors">Quick View</button>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <h3 class="text-white font-medium mb-1">Oversized Hoodie</h3>
-                        <p class="text-gray-400">$89.99</p>
-                    </div>
-                </div> -->
-                <div class="product-card group" th:each="product : ${products}">
-                    <a th:href="@{'/description/' + ${product.id}}" class="block">
-                        <div class="relative overflow-hidden mb-4 image-container">
-                            <img th:src="@{${product.imageUrl}}" 
-                                th:alt="${product.name}" 
-                                class="w-full h-auto object-cover main-img">
-                            <img th:src="@{${product.hoverImageUrl != null ? product.hoverImageUrl : product.imageUrl}}" 
-                                th:alt="${product.name} + ' - hover'" 
-                                class="w-full h-full object-cover hover-img" />
-                        </div>
-                        <div class="text-center">
-                            <h3 class="text-white font-medium mb-1 product-title" th:text="${product.name}"></h3>
-                            <p class="text-gray-400 product-price" th:text="${product.price + ' UZS'}"></p>
-                        </div>
-                    </a>
-                    <!-- <a class="product-link block mt-2" 
-                    th:href="@{'https://t.me/huntuzavvvr'(text=${'Здравствуйте, хочу заказать товар: ' + product.name})}" 
-                    target="_blank">Заказать</a> -->
-                    <a class="product-link block mt-2 bg-white text-black py-2 px-4 rounded text-center 
-                            hover:bg-gray-200 transition-colors"
-                    th:href="@{'/description/' + ${product.id}}">
-                    Заказать
-                    </a>
-                </div>
-                
-                
-                <!-- Product 2 -->
-                <!-- <div class="product-card group">
-                    <div class="relative overflow-hidden mb-4">
-                        <img src="https://images.unsplash.com/photo-1527719327859-c6ce80353573?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1964&q=80" 
-                             alt="Cargo Pants" 
-                             class="w-full h-auto object-cover">
-                        <div class="product-overlay absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                            <button class="bg-white text-black px-6 py-2 uppercase text-xs tracking-wider font-semibold hover:bg-gray-200 transition-colors">Quick View</button>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <h3 class="text-white font-medium mb-1">Cargo Pants</h3>
-                        <p class="text-gray-400">$129.99</p>
-                    </div>
-                </div> -->
-                
-                <!-- Product 3 -->
-                <!-- <div class="product-card group">
-                    <div class="relative overflow-hidden mb-4">
-                        <img src="https://images.unsplash.com/photo-1527719327859-c6ce80353573?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1964&q=80" 
-                             alt="Graphic Tee" 
-                             class="w-full h-auto object-cover">
-                        <div class="product-overlay absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                            <button class="bg-white text-black px-6 py-2 uppercase text-xs tracking-wider font-semibold hover:bg-gray-200 transition-colors">Quick View</button>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <h3 class="text-white font-medium mb-1">Graphic Tee</h3>
-                        <p class="text-gray-400">$49.99</p>
-                    </div>
-                </div> -->
-                
-                <!-- Product 4 -->
-                <!-- <div class="product-card group">
-                    <div class="relative overflow-hidden mb-4">
-                        <img src="https://images.unsplash.com/photo-1527719327859-c6ce80353573?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1964&q=80" 
-                             alt="Denim Jacket" 
-                             class="w-full h-auto object-cover">
-                        <div class="product-overlay absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                            <button class="bg-white text-black px-6 py-2 uppercase text-xs tracking-wider font-semibold hover:bg-gray-200 transition-colors">Quick View</button>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <h3 class="text-white font-medium mb-1">Denim Jacket</h3>
-                        <p class="text-gray-400">$149.99</p>
-                    </div>
-                </div> -->
-                
-                <!-- Product 5 -->
-                <!-- <div class="product-card group">
-                    <div class="relative overflow-hidden mb-4">
-                        <img src="https://images.unsplash.com/photo-1527719327859-c6ce80353573?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1964&q=80" 
-                             alt="Bucket Hat" 
-                             class="w-full h-auto object-cover">
-                        <div class="product-overlay absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                            <button class="bg-white text-black px-6 py-2 uppercase text-xs tracking-wider font-semibold hover:bg-gray-200 transition-colors">Quick View</button>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <h3 class="text-white font-medium mb-1">Bucket Hat</h3>
-                        <p class="text-gray-400">$39.99</p>
-                    </div>
-                </div> -->
-                
-                <!-- Product 6 -->
-                <!-- <div class="product-card group">
-                    <div class="relative overflow-hidden mb-4">
-                        <img src="https://images.unsplash.com/photo-1527719327859-c6ce80353573?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1964&q=80" 
-                             alt="High-Top Sneakers" 
-                             class="w-full h-auto object-cover">
-                        <div class="product-overlay absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                            <button class="bg-white text-black px-6 py-2 uppercase text-xs tracking-wider font-semibold hover:bg-gray-200 transition-colors">Quick View</button>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <h3 class="text-white font-medium mb-1">High-Top Sneakers</h3>
-                        <p class="text-gray-400">$159.99</p>
-                    </div>
-                </div> -->
+        <div class="container mx-auto h-full flex flex-col justify-end pb-20 px-4">
+            <div class="max-w-md">
+                <a href="#products" class="inline-block bg-white text-black px-8 py-3 uppercase text-sm tracking-wider font-semibold hover:bg-gray-200 transition-colors">
+                    ПЕРЕЙТИ К ПОКУПКАМ
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- About Section -->
-    <!-- <section class="py-16 px-4 bg-gray-900">
-        <div class="container mx-auto max-w-4xl">
-            <h2 class="section-title text-4xl mb-8 text-center">ABOUT URBAN EDGE</h2>
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div>
-                    <img src="https://images.unsplash.com/photo-1527719327859-c6ce80353573?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1964&q=80" 
-                         alt="Brand Story" 
-                         class="w-full h-auto object-cover">
-                </div>
-                <div>
-                    <p class="text-gray-300 mb-4">
-                        Born from the streets, crafted for the culture. URBAN EDGE represents the intersection of urban lifestyle and high-end streetwear.
-                    </p>
-                    <p class="text-gray-300 mb-4">
-                        We don't just make clothes—we create statements. Each piece is designed with attention to detail, quality fabrics, and the urban aesthetic that defines our generation.
-                    </p>
-                    <p class="text-gray-300">
-                        Our mission is simple: to provide premium streetwear that stands out without shouting, that makes an impact without compromising comfort, and that represents the edge of urban fashion.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section> -->
-
-    <!-- Contact Section -->
-    <!-- <section class="py-16 px-4">
-        <div class="container mx-auto max-w-4xl">
-            <h2 class="section-title text-4xl mb-12 text-center">CONNECT WITH US</h2>
+    <!-- Featured Products -->
+    <section class="py-16 px-4" id="products">
+        <div class="container mx-auto">
+            <h2 class="section-title text-4xl mb-12 text-center">НАША КОЛЛЕКЦИЯ</h2>
             
-            <div class="grid md:grid-cols-2 gap-12">
-                <div>
-                    <h3 class="text-xl font-semibold mb-4">STAY UPDATED</h3>
-                    <p class="text-gray-400 mb-6">
-                        Join our Telegram channel for exclusive drops, early access, and streetwear culture content.
-                    </p>
-                    <a href="#" class="inline-flex items-center bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600 transition-colors">
-                        <i class="fab fa-telegram mr-2"></i> Join Telegram
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
+                <!-- Product Cards -->
+                <div class="product-card group" th:each="product : ${products}">
+                    <a th:href="@{'/products/' + ${product.id}}" class="block">
+                        <div class="relative overflow-hidden mb-4 image-container" style="aspect-ratio: 1/1;">
+                            <!-- Main product image -->
+                            <img th:if="${not #lists.isEmpty(product.variants)}"
+                                 th:src="@{${product.variants[0].imageUrl}}" 
+                                 th:alt="${product.name}" 
+                                 class="w-full h-full object-cover main-img">
+                                 
+                            <!-- Hover image (falls back to main image if not available) -->
+                            <img th:if="${not #lists.isEmpty(product.variants)}"
+                                 th:src="@{${product.variants[0].hoverImageUrl != null ? product.variants[0].hoverImageUrl : product.variants[0].imageUrl}}" 
+                                 th:alt="${product.name} + ' - hover'" 
+                                 class="w-full h-full object-cover hover-img" />
+                        </div>
+                        <div class="text-center">
+                            <h3 class="text-white font-medium mb-1" th:text="${product.name}"></h3>
+                            <!-- Show price range if multiple variants exist -->
+                            <!-- <p class="text-gray-400" th:if="${#lists.size(product.variants) > 1}">
+                                От <span th:text="${#numbers.formatDecimal(#aggregates.min(product.variants.![price]), 1, 2, 'COMMA')}"></span> UZS
+                            </p> -->
+                            <!-- Show single price if only one variant -->
+                            <!-- <p class="text-gray-400" th:unless="${#lists.size(product.variants) > 1}">
+                                <span th:if="${not #lists.isEmpty(product.variants)}" 
+                                      th:text="${#numbers.formatDecimal(product.variants[0].price, 1, 2, 'COMMA')}"></span> UZS
+                            </p> -->
+                        </div>
+                    </a>
+                    <a class="block mt-2 bg-white text-black py-2 px-4 rounded text-center hover:bg-gray-200 transition-colors"
+                       th:href="@{'/products/' + ${product.id}}">
+                       Подробнее
                     </a>
                 </div>
-                
-                <div>
-                    <h3 class="text-xl font-semibold mb-4">FOLLOW US</h3>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-white hover:text-gray-400 transition-colors text-2xl"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-white hover:text-gray-400 transition-colors text-2xl"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-white hover:text-gray-400 transition-colors text-2xl"><i class="fab fa-tiktok"></i></a>
-                        <a href="#" class="text-white hover:text-gray-400 transition-colors text-2xl"><i class="fab fa-youtube"></i></a>
-                    </div>
-                    
-                    <h3 class="text-xl font-semibold mt-8 mb-4">CONTACT</h3>
-                    <p class="text-gray-400">info@urbanedge.com</p>
-                    <p class="text-gray-400">+1 (555) 123-4567</p>
-                </div>
             </div>
         </div>
-    </section> -->
+    </section>
 
     <!-- Footer -->
-    <!-- <footer class="py-8 px-4 border-t border-gray-800">
-        <div class="container mx-auto">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="logo-font text-2xl mb-4 md:mb-0">
-                    <a href="#" class="text-white">URBAN EDGE</a>
-                </div>
-                
-                <div class="text-gray-400 text-sm">
-                    <p>&copy; 2023 URBAN EDGE. All rights reserved.</p>
+    <footer class="bg-black border-t border-gray-800 py-12 px-6">
+        <div class="container mx-auto max-w-6xl grid grid-cols-1 sm:grid-cols-3 gap-8 text-gray-400 text-sm font-medium">
+            <!-- Контакты -->
+            <div>
+                <h3 class="text-white font-semibold mb-4 uppercase tracking-wide">Контакты</h3>
+                <p class="mb-6">Telegram: @noeraprod</p>
+                <div class="flex space-x-6 text-2xl">
+                    <a href="https://t.me/noeraprod" class="hover:text-white transition-colors" aria-label="Telegram">
+                        <i class="fab fa-telegram"></i>
+                    </a>
                 </div>
             </div>
         </div>
-    </footer> -->
-    <footer class="bg-black border-t border-gray-800 py-12 px-6">
-  <div class="container mx-auto max-w-6xl grid grid-cols-1 sm:grid-cols-3 gap-8 text-gray-400 text-sm font-medium">
-    <!-- Личный кабинет -->
-    <!-- <div>
-      <h3 class="text-white font-semibold mb-4 uppercase tracking-wide">Личный кабинет</h3>
-      <p class="mb-4 leading-relaxed">
-        Просматривайте историю заказов и получайте кешбек бонусами за каждый заказ
-      </p>
-      <a href="/profile" class="inline-block bg-white text-black px-6 py-2 uppercase tracking-wide font-semibold hover:bg-gray-200 transition-colors">
-        Войти
-      </a>
-    </div> -->
-
-    <!-- Меню -->
-    <!-- <div>
-      <h3 class="text-white font-semibold mb-4 uppercase tracking-wide">Меню</h3>
-      <ul class="space-y-3">
-        <li><a href="/gallery" class="hover:text-white transition-colors">Галерея</a></li>
-        <li><a href="/deliveryinfo" class="hover:text-white transition-colors">Доставка</a></li>
-        <li><a href="/refund" class="hover:text-white transition-colors">Возврат</a></li>
-        <li><a href="/about" class="hover:text-white transition-colors">О бренде</a></li>
-      </ul>
-    </div> -->
-
-    <!-- Контакты и соцсети -->
-    <div>
-      <h3 class="text-white font-semibold mb-4 uppercase tracking-wide">Контакты</h3>
-      <p class="mb-2">info@noera.com</p>
-      <p class="mb-6">+1 (111) 111-1111</p>
-
-      <div class="flex space-x-6 text-2xl">
-        <!-- <a href="#" class="hover:text-white transition-colors" aria-label="Instagram"><i class="fab fa-instagram"></i></a> -->
-        <!-- <a href="#" class="hover:text-white transition-colors" aria-label="Twitter"><i class="fab fa-twitter"></i></a> -->
-        <!-- <a href="#" class="hover:text-white transition-colors" aria-label="TikTok"><i class="fab fa-tiktok"></i></a> -->
-        <!-- <a href="#" class="hover:text-white transition-colors" aria-label="YouTube"><i class="fab fa-youtube"></i></a> -->
-        <!-- <a href="#" class="hover:text-white transition-colors" aria-label="Telegram"><i class="fab fa-telegram"></i></a> -->
-      </div>
-    </div>
-  </div>
-
-  <div class="mt-12 text-center text-gray-600 text-xs">
-    &copy; 2025 NOERA. Все права защищены.
-  </div>
-</footer>
-
-
+        <div class="mt-12 text-center text-gray-600 text-xs">
+            &copy; 2025 NOERA. Все права защищены.
+        </div>
+    </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-    // Меню
-    const menuButton = document.getElementById('menu-button');
-    const closeMenuButton = document.getElementById('close-menu-button');
-    const slideMenu = document.getElementById('slide-menu');
-    const overlay = document.getElementById('overlay');
+            // Меню
+            const menuButton = document.getElementById('menu-button');
+            const closeMenuButton = document.getElementById('close-menu-button');
+            const slideMenu = document.getElementById('slide-menu');
+            const overlay = document.getElementById('overlay');
 
-    menuButton.addEventListener('click', () => {
-        slideMenu.classList.add('open');
-        overlay.classList.add('active');
-    });
-
-    closeMenuButton.addEventListener('click', () => {
-        slideMenu.classList.remove('open');
-        overlay.classList.remove('active');
-    });
-
-    overlay.addEventListener('click', () => {
-        slideMenu.classList.remove('open');
-        overlay.classList.remove('active');
-    });
-
-    // Mobile menu toggle
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    if (mobileMenuButton) {
-        mobileMenuButton.addEventListener('click', function() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        });
-    }
-
-    // Анимация баннера (если нужно)
-    const heroBanner = document.querySelector('.hero-banner');
-    const bannerImages = [
-        'url(/images/photo_2025-08-10_00-10-35.jpg)',
-        // Добавьте другие изображения для слайдера
-    ];
-    
-    if (heroBanner && bannerImages.length > 1) {
-        let currentBannerIndex = 0;
-        
-        function changeBannerImage() {
-            currentBannerIndex = (currentBannerIndex + 1) % bannerImages.length;
-            heroBanner.style.backgroundImage = bannerImages[currentBannerIndex];
-        }
-        
-        // Change banner every 5 seconds
-        setInterval(changeBannerImage, 5000);
-    }
-
-    // Анимация появления товаров при скролле
-    const animateProducts = () => {
-        const productCards = document.querySelectorAll('.product-card');
-        
-        if (productCards.length === 0) return;
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry, index) => {
-                if (entry.isIntersecting) {
-                    setTimeout(() => {
-                        entry.target.classList.add('visible');
-                    }, index * 100); // Задержка для каждого элемента
-                    observer.unobserve(entry.target);
-                }
+            menuButton.addEventListener('click', () => {
+                slideMenu.classList.add('open');
+                overlay.classList.add('active');
             });
-        }, {
-            threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
-        });
 
-        productCards.forEach(card => {
-            observer.observe(card);
-        });
-    };
+            closeMenuButton.addEventListener('click', () => {
+                slideMenu.classList.remove('open');
+                overlay.classList.remove('active');
+            });
 
-    // Инициализация анимации товаров
-    animateProducts();
+            overlay.addEventListener('click', () => {
+                slideMenu.classList.remove('open');
+                overlay.classList.remove('active');
+            });
 
-    // Дополнительно: плавный скролл для якорей
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            document.querySelector(this.getAttribute('href')).scrollIntoView({
-                behavior: 'smooth'
+            // Плавный скролл
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
             });
         });
-    });
-});
     </script>
-<!-- <p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=HuntuZist/brand" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body> -->
+</body>
 </html>

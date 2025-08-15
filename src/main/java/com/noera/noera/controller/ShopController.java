@@ -1,36 +1,22 @@
 package com.noera.noera.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.noera.noera.model.Product;
+import com.noera.noera.model.ProductVariant;
 import com.noera.noera.service.ShopService;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
-
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping
 public class ShopController {
     
-    private ShopService service;
+    private final ShopService service;
 
-    public ShopController(ShopService service){
+    public ShopController(ShopService service) {
         this.service = service;
     }
 
@@ -55,47 +41,66 @@ public class ShopController {
     public String getRefund() {
         return "redirect:/";
     }
+
     @GetMapping("/about")
     public String getAbout() {
         return "redirect:/";
     }
 
-    // @GetMapping("/description/{id}")
-    // public String getDescription(@PathVariable Integer id, Model model) {
-    //     Product product = service.findById(id);
-    //     model.addAttribute("product", product);
-    //     return "description";
-    // }
-    @GetMapping("/description/{id}")
-    public String getDescription(@PathVariable Integer id, Model model) {
+    @GetMapping("/products/{id}")
+    public String getDescription(@PathVariable Integer id, 
+                               @RequestParam(required = false) String color,
+                               @RequestParam(required = false) String size,
+                               Model model) {
         Product product = service.findById(id);
-        model.addAttribute("product", product);
-
-        // Получаем все товары с таким же названием
-        List<Product> sameNameProducts = service.findByName(product.getName());
-
-        // Извлекаем уникальные цвета
-        Set<String> colors = sameNameProducts.stream()
-            .map(Product::getColor)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
-
-        model.addAttribute("availableColors", colors);
-        for (var elem : colors){
-            System.out.println(elem);
+        if (product == null) {
+            return "redirect:/";
         }
+
+        // Get all variants for this product
+        List<ProductVariant> variants = product.getVariants();
+        
+        // Find selected variant based on color parameter
+        ProductVariant selectedVariant = variants.stream()
+                .filter(v -> color == null || color.equalsIgnoreCase(v.getColor()))
+                .findFirst()
+                .orElse(variants.isEmpty() ? null : variants.get(0));
+
+        // Get all unique colors from variants
+        Set<String> availableColors = variants.stream()
+                .map(ProductVariant::getColor)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        // Get all unique sizes from variants (assuming size is stored somewhere)
+        // This is just an example - you'll need to adjust based on your actual size storage
+        Set<String> availableSizes = variants.stream()
+                .filter(v -> v.getQuantity() > 0) // Only show sizes that are available
+                .map(v -> "S") // Replace with actual size property if you have one
+                .collect(Collectors.toSet());
+
+        // Get all image URLs for the gallery
+        List<String> allProductImages = variants.stream()
+                .flatMap(v -> Arrays.stream(new String[]{v.getImageUrl(), v.getHoverImageUrl()}))
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+
+        model.addAttribute("product", product);
+        model.addAttribute("selectedVariant", selectedVariant);
+        model.addAttribute("selectedSize", size);
+        model.addAttribute("availableColors", availableColors);
+        model.addAttribute("availableSizes", availableSizes);
+        model.addAttribute("allProductImages", allProductImages);
+
         return "description";
-}
-    
-    @GetMapping("/product/{name}/color/{color}")
-    @ResponseBody
-    public Product getProductByNameAndColor(@PathVariable String name, @PathVariable String color) {
-        return service.findByNameAndColor(name, color);
     }
-    
-    // @GetMapping()
-    // public String getMethodName(@RequestParam String param) {
-    //     return new String();
-    // }
-    
+
+    // Utility method to check if size is available
+    private boolean isSizeAvailable(String size, List<ProductVariant> variants) {
+        // Implement your size availability logic here
+        // This is just a placeholder - adjust based on your actual implementation
+        return variants.stream()
+                .anyMatch(v -> v.getQuantity() > 0 && size.equals("S")); // Replace with actual size check
+    }
 }

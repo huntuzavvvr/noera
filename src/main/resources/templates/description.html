@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${product.name}">NOERA - Выбор товара</title>
+    <title th:text="${product.name} + ' | NOERA'">NOERA - Выбор товара</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,19 +15,20 @@
 
         .color-option {
             width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
-            border: 1px solid #333; transition: all 0.3s ease;
+            border: 2px solid #333; transition: all 0.3s ease;
         }
         .color-option.selected { border-color: white; transform: scale(1.1); }
-        .color-option.white { background-color: #fff; border: 1px solid #e5e7eb; }
-        .color-option.black { background-color: #000; border: 1px solid #333; }
-
+        
         .size-option {
             display: flex; align-items: center; justify-content: center;
             width: 50px; height: 50px; border: 1px solid #333;
             cursor: pointer; transition: all 0.3s ease;
         }
         .size-option.selected { border-color: white; background-color: rgba(255,255,255,0.1); }
-        .size-option.unavailable { color: #555; border-color: #333; text-decoration: line-through; cursor: not-allowed; }
+        .size-option.unavailable { 
+            color: #555; border-color: #333; 
+            text-decoration: line-through; cursor: not-allowed; 
+        }
 
         .product-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
         .thumbnail { cursor: pointer; opacity: 0.7; transition: opacity 0.3s ease; }
@@ -58,16 +59,16 @@
         <div>
             <div class="bg-gray-900 rounded-lg overflow-hidden">
                 <img id="mainProductImage"
-                     th:data-name="${product.name}"
-                     th:src="@{${product.imageUrl}}" 
+                     th:src="@{${selectedVariant != null ? selectedVariant.imageUrl : product.variants[0].imageUrl}}" 
                      th:alt="${product.name}" 
                      class="w-full main-image">
             </div>
             <div id="productGallery" class="product-gallery">
-                <img th:src="@{${product.imageUrl}}" class="thumbnail rounded active"
+                <img th:each="img : ${allProductImages}" 
+                     th:src="@{${img}}" 
+                     class="thumbnail rounded" 
+                     th:classappend="${img == (selectedVariant != null ? selectedVariant.imageUrl : product.variants[0].imageUrl)} ? 'active' : ''"
                      onclick="changeMainImage(this, this.src)">
-                <img th:if="${product.hoverImageUrl != null}" th:src="@{${product.hoverImageUrl}}" 
-                     class="thumbnail rounded" onclick="changeMainImage(this, this.src)">
             </div>
         </div>
 
@@ -76,65 +77,56 @@
             <h1 class="section-title text-4xl mb-2" th:text="${product.name}"></h1>
 
             <div class="flex items-center mb-6">
-                <span id="price" class="text-2xl font-bold mr-4"
-                      th:text="${product.price + ' UZS'}"></span>
-                <span class="text-green-500 text-sm">В наличии</span>
+                <span class="text-2xl font-bold mr-4">
+                    <span th:if="${selectedVariant != null}"
+                        id="price" 
+                        th:text="${#numbers.formatDecimal(selectedVariant.price, 0, 0)} + ' UZS'"></span>
+
+                    <span th:unless="${selectedVariant != null}"
+                        id="price" 
+                        th:text="${#numbers.formatDecimal(product.variants[0].price, 0, 0)} + ' UZS'"></span>
+
+                </span>
+                <span class="text-green-500 text-sm" th:if="${(selectedVariant != null ? selectedVariant.quantity : product.variants[0].quantity) > 0}">В наличии</span>
+                <span class="text-red-500 text-sm" th:unless="${(selectedVariant != null ? selectedVariant.quantity : product.variants[0].quantity) > 0}">Нет в наличии</span>
             </div>
 
             <!-- Color Selection -->
-            <!-- <div class="mb-8">
-                <h3 class="text-lg font-semibold mb-3">ЦВЕТ</h3>
-                <div class="flex space-x-3">
-                    <div class="color-option white selected" data-color="white" onclick="selectColor(this)"></div>
-                    <div class="color-option black" data-color="black" onclick="selectColor(this)"></div>
-                </div>
-            </div> -->
-            <div class="mb-8">
-    <h3 class="text-lg font-semibold mb-3">ЦВЕТ</h3>
-    <div class="flex space-x-3">
-        <div th:each="color : ${availableColors}" 
-             class="color-option rounded"
-             th:classappend="${color == product.color} ? ' selected' : ''"
-             th:data-color="${color}"
-             th:style="'background-color:' + (${color} == 'white' ? '#fff' : (${color} == 'black' ? '#000' : color))"
-             onclick="selectColor(this)">
-        </div>
-    </div>
-</div>
-<!--             
-            <div class="mb-8">
+            <div class="mb-8" th:if="${not #lists.isEmpty(availableColors)}">
                 <h3 class="text-lg font-semibold mb-3">ЦВЕТ</h3>
                 <div class="flex space-x-3">
                     <div th:each="color : ${availableColors}" 
-                        class="color-option rounded"
-                        th:classappend="${color == product.color} ? 'selected' : ''"
-                        th:data-color="${color}"
-                        th:style="'background-color:' + (${color} == 'white' ? '#fff' : ${color} == 'black' ? '#000' : ${color})"
+                        class="color-option"
+                        th:style="'background-color: ' + ${color} + ';'"
+                        th:classappend="${(selectedVariant != null ? selectedVariant.color : product.variants[0].color) == color} ? 'selected' : ''"
+                        th:attr="data-color=${color}"
                         onclick="selectColor(this)">
                     </div>
                 </div>
-            </div> -->
-            <!-- Size Selection -->
-            <div class="mb-8">
-                <h3 class="text-lg font-semibold mb-3">РАЗМЕР</h3>
-                <div class="grid grid-cols-5 gap-3 max-w-md">
-                    <div class="size-option selected" onclick="selectSize(this)">XS</div>
-                    <div class="size-option" onclick="selectSize(this)">S</div>
-                    <div class="size-option" onclick="selectSize(this)">M</div>
-                    <div class="size-option" onclick="selectSize(this)">L</div>
-                    <div class="size-option unavailable">XL</div>
-                </div>
-                <a href="#" class="inline-block text-gray-400 text-sm mt-3 hover:text-white">Таблица размеров</a>
             </div>
 
+            <!-- Size Selection -->
+            <!-- <div class="mb-8" th:if="${not #lists.isEmpty(availableSizes)}">
+                <h3 class="text-lg font-semibold mb-3">РАЗМЕР</h3>
+                <div class="grid grid-cols-5 gap-3 max-w-md">
+                    <div th:each="size : ${availableSizes}"
+                         class="size-option"
+                         th:classappend="${(selectedSize != null && selectedSize == size)} ? 'selected' : ''"
+                         th:classappend="${!isSizeAvailable(size)} ? 'unavailable' : ''"
+                         th:text="${size}"
+                         th:data-size="${size}"
+                         onclick="selectSize(this, '${size}')">
+                    </div>
+                </div>
+            </div> -->
+
             <!-- Add to Cart Button -->
-            <!-- <button class="w-full bg-white text-black py-4 uppercase font-bold tracking-wider hover:bg-gray-200 transition-colors mb-6">
-                ДОБАВИТЬ В КОРЗИНУ
-            </button> -->
             <button id="orderButton"
-                class="w-full bg-white text-black py-4 uppercase font-bold tracking-wider hover:bg-gray-200 transition-colors mb-6">
+                class="w-full bg-white text-black py-4 uppercase font-bold tracking-wider hover:bg-gray-200 transition-colors mb-6"
+                th:disabled="${(selectedVariant != null ? selectedVariant.quantity : product.variants[0].quantity) <= 0}">
                 ЗАКАЗАТЬ
             </button>
+
             <!-- Product Details -->
             <div class="border-t border-gray-800 pt-6">
                 <h3 class="text-lg font-semibold mb-3">ОПИСАНИЕ</h3>
@@ -168,69 +160,51 @@
     }
 
     function selectColor(element) {
-        document.querySelectorAll('.color-option').forEach(c => c.classList.remove('selected'));
-        element.classList.add('selected');
+    const color = element.getAttribute('data-color');
+    if (!color) return;
+    
+    // Обновляем URL с выбранным цветом
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('color', color);
+    window.location.href = currentUrl.toString();
+}
 
-        const color = element.dataset.color;
-        const productName = document.getElementById('mainProductImage').dataset.name;
-
-        fetch(`/product/${productName}/color/${color}`)
-            .then(res => res.json())
-            .then(product => {
-                // Основное изображение
-                document.getElementById('mainProductImage').src = product.imageUrl;
-
-                // Миниатюры
-                const gallery = document.getElementById('productGallery');
-                gallery.innerHTML = '';
-                if(product.imageUrl){
-                    const thumb1 = document.createElement('img');
-                    thumb1.src = product.imageUrl;
-                    thumb1.classList.add('thumbnail', 'rounded', 'active');
-                    thumb1.onclick = () => changeMainImage(thumb1, product.imageUrl);
-                    gallery.appendChild(thumb1);
-                }
-                if(product.hoverImageUrl){
-                    const thumb2 = document.createElement('img');
-                    thumb2.src = product.hoverImageUrl;
-                    thumb2.classList.add('thumbnail', 'rounded');
-                    thumb2.onclick = () => changeMainImage(thumb2, product.hoverImageUrl);
-                    gallery.appendChild(thumb2);
-                }
-
-                // Цена
-                document.getElementById('price').textContent = product.price + ' р.';
-            })
-            .catch(err => console.error('Ошибка загрузки товара:', err));
-    }
-
-    function selectSize(element) {
+    function selectSize(element, size) {
         if(element.classList.contains('unavailable')) return;
-        document.querySelectorAll('.size-option').forEach(s => s.classList.remove('selected'));
-        element.classList.add('selected');
+        
+        // Обновляем URL с выбранным размером
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('size', size);
+        window.location.href = currentUrl.toString();
     }
-    document.getElementById('orderButton').addEventListener('click', function() {
-    const productName = document.getElementById('mainProductImage').dataset.name;
 
-    // Получаем выбранный цвет
-    const colorElement = document.querySelector('.color-option.selected');
-    const color = colorElement ? colorElement.dataset.color : '';
+    document.addEventListener('DOMContentLoaded', function() {
+    const orderButton = document.getElementById('orderButton');
+    if (!orderButton) return;
 
-    // Получаем выбранный размер
-    const sizeElement = document.querySelector('.size-option.selected');
-    const size = sizeElement ? sizeElement.textContent : '';
+    orderButton.addEventListener('click', function() {
+        const productName = document.querySelector('.section-title').textContent;
+        const price = document.getElementById('price').textContent;
+        const colorElement = document.querySelector('.color-option.selected');
+        const color = colorElement ? colorElement.dataset.color : 'не выбран';
 
-    // Составляем сообщение
-    const message = `Здравствуйте! Я хочу заказать товар:\nНазвание: ${productName}\nЦвет: ${color}\nРазмер: ${size}`;
+        // const sizeElement = document.querySelector('.size-option.selected');
+        // const size = sizeElement ? sizeElement.dataset.size : 'не выбран';
 
-    // Ссылка на Telegram (замени на свой username)
-    const telegramUsername = 'huntuzavvvr'; // <-- сюда свой ник Telegram
-    const telegramLink = `https://t.me/${telegramUsername}?text=${encodeURIComponent(message)}`;
+        // const message = `Здравствуйте! Хочу заказать:\n\n` +
+        //                 `Товар: ${productName}\n` +
+        //                 `Цвет: ${color}\n` +
+        //                 `Размер: ${size}\n` +
+        //                 `Цена: ${price}\n\n` +
+        //                 `Свяжитесь со мной для уточнения деталей.`;
 
-    // Переходим по ссылке
-    window.open(telegramLink, '_blank');
+        const encodedMessage = encodeURIComponent(`Здравствуйте! Я хочу заказать товар:\nНазвание: ${productName}\nЦена: ${price}\nЦвет: ${color}`);
+        const telegramLink = `https://t.me/huntuzavvvr?text=${encodedMessage}`;
+
+        // Открываем Telegram
+        window.open(telegramLink, '_blank');
+    });
 });
-
 </script>
 
 </body>

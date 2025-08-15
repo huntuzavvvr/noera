@@ -8,37 +8,57 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.noera.noera.model.Product;
+import com.noera.noera.model.ProductVariant;
 import com.noera.noera.repository.ShopRepository;
 
 @Component
-public class DataInitializer implements CommandLineRunner{
+public class DataInitializer implements CommandLineRunner {
 
-    private ShopRepository repository;
+    private final ShopRepository productRepository;
 
-    public DataInitializer(ShopRepository repository){
-        this.repository = repository;
+    public DataInitializer(ShopRepository productRepository) {
+        this.productRepository = productRepository;
     }
 
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        
-        if (repository.count() == 0){
-            Product product1 = new Product();
-            product1.setName("noera_base");
-            product1.setPrice(999);
-            product1.setImageUrl("/images/white_1.png");
-            product1.setHoverImageUrl("/images/white_2.png");
-            product1.setColor("white");
-            Product product2 = new Product();
-            product2.setName("noera_base");
-            product2.setPrice(1199);
-            product2.setImageUrl("/images/black_1.png");
-            product2.setHoverImageUrl("/images/black_2.png");
-            product2.setColor("black");
-            repository.save(product1);
-            repository.save(product2);
+        if (productRepository.count() == 0) {
+
+            // Создаём основной товар
+            Product product = new Product();
+            product.setName("Noera Base Hoodie");
+
+            // Создаём варианты
+            ProductVariant whiteVariant = new ProductVariant();
+            whiteVariant.setColor("white");
+            whiteVariant.setPrice(BigDecimal.valueOf(999));
+            whiteVariant.setQuantity(10);
+            whiteVariant.setImageUrl("/images/white_1.png");
+            whiteVariant.setHoverImageUrl("/images/white_2.png");
+            whiteVariant.setProduct(product); // связь
+
+            ProductVariant blackVariant = new ProductVariant();
+            blackVariant.setColor("black");
+            blackVariant.setPrice(BigDecimal.valueOf(1199));
+            blackVariant.setQuantity(5);
+            blackVariant.setImageUrl("/images/black_1.png");
+            blackVariant.setHoverImageUrl("/images/black_2.png");
+            blackVariant.setProduct(product);
+
+            // ProductVariant redVariant = new ProductVariant();
+            // redVariant.setColor("red");
+            // redVariant.setPrice(BigDecimal.valueOf(1099));
+            // redVariant.setQuantity(3);
+            // redVariant.setImageUrl("/images/red_1.png");
+            // redVariant.setHoverImageUrl("/images/red_2.png");
+            // redVariant.setProduct(product);
+
+            // Добавляем варианты в товар
+            product.setVariants(List.of(whiteVariant, blackVariant));
+
+            // Сохраняем товар (варианты сохранятся каскадно)
+            productRepository.save(product);
         }
     }
-    
 }

@@ -10,7 +10,7 @@ import com.noera.noera.model.Product;
 
 @Repository
 public interface ShopRepository extends JpaRepository<Product, Integer>{
-    Optional<Product> findByNameAndColor(String name, String color);
+    // Optional<Product> findByNameAndColor(String name, String color);
     
     List<Product> findByName(String name);
 

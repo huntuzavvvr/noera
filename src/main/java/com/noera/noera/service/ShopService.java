@@ -31,10 +31,10 @@ public class ShopService {
     public Product findById(Integer id){
         return repository.findById(id).orElse(null);
     }
-    public Product findByNameAndColor(String name, String color) {
-    return repository.findByNameAndColor(name, color)
-            .orElseThrow(() -> new RuntimeException("Товар не найден"));
-}
+//     public Product findByNameAndColor(String name, String color) {
+//     return repository.findByNameAndColor(name, color)
+//             .orElseThrow(() -> new RuntimeException("Товар не найден"));
+// }
     public List<Product> findByName(String name) {
         return repository.findByName(name);
     }
