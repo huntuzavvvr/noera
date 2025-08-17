@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>О нас - NOERA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        .logo-font {
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 2px;
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: white;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: rgba(0, 0, 0, 0.8);
+            transition: all 0.3s ease;
+        }
+        
+        .section-title {
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 3px;
+        }
+        
+        .slide-menu {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 300px;
+            height: 100%;
+            background-color: black;
+            z-index: 100;
+            transition: left 0.3s ease;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .slide-menu.open {
+            left: 0;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            display: none;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        .about-hero {
+            height: 60vh;
+            background-size: cover;
+            background-position: center;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/images/about-bg.jpg');
+        }
+        
+        .team-member {
+            transition: transform 0.3s ease;
+        }
+        
+        .team-member:hover {
+            transform: translateY(-10px);
+        }
+        
+        .value-card {
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+        
+        .value-card:hover {
+            border-color: #fff;
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Sticky Navigation -->
+    <header class="sticky-nav border-b border-gray-800">
+        <div class="container mx-auto px-4 py-4 flex items-center">
+            <button class="text-white" id="menu-button">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <div class="logo-font text-3xl text-white flex-grow text-center">
+                <a href="/">NOERA</a>
+            </div>
+            <div class="flex space-x-4">
+                <a href="https://t.me/noeraprod" class="text-white hover:text-gray-400 transition-colors text-xl" aria-label="Telegram">
+                    <i class="fab fa-telegram"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Slide Menu -->
+        <div class="slide-menu" id="slide-menu">
+            <button class="text-white mb-6 ml-auto block" id="close-menu-button">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            <ul class="flex flex-col gap-2">
+                <li><a href="/gallery" class="nav-link">Галерея</a></li>
+                <li><a href="/deliveryinfo" class="nav-link">Доставка</a></li>
+                <!-- <li><a href="/refund" class="nav-link">Возврат</a></li> -->
+                <li><a href="/about" class="nav-link">О нас</a></li>
+            </ul>
+        </div>
+        <div class="overlay" id="overlay"></div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="about-hero flex items-center justify-center">
+        <div class="container mx-auto text-center px-4">
+            <h1 class="section-title text-5xl md:text-6xl lg:text-7xl mb-4">О НАС</h1>
+            <p class="text-xl max-w-2xl mx-auto">NOERA - это больше чем бренд, это стиль жизни</p>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="py-16 px-4">
+        <div class="container mx-auto max-w-4xl">
+            <div class="text-center mb-16">
+                <h2 class="section-title text-4xl mb-6">ТЕКСТ</h2>
+                <p class="text-gray-300 leading-relaxed">
+                    ТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТ
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-12 mb-16">
+                <div>
+                    <h3 class="section-title text-3xl mb-4">ТЕКСТ</h3>
+                    <p class="text-gray-300 leading-relaxed">
+                        ТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТ
+                        ТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТ
+                    </p>
+                </div>
+                <div>
+                    <h3 class="section-title text-3xl mb-4">ТЕКСТ</h3>
+                    <p class="text-gray-300 leading-relaxed">
+                        ТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТ
+                        ТЕКСТТЕКСТТЕКСТТЕКСТТЕКСТ
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <!-- <section class="py-16 px-4 bg-gray-900">
+        <div class="container mx-auto">
+            <h2 class="section-title text-4xl mb-12 text-center">НАШИ ПРИНЦИПЫ</h2>
+            
+            <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div class="value-card p-8 rounded-lg">
+                    <div class="text-4xl mb-4 text-white">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">КАЧЕСТВО</h3>
+                    <p class="text-gray-300">
+                        Мы используем только лучшие материалы и уделяем внимание каждой детали в процессе производства.
+                    </p>
+                </div>
+                
+                <div class="value-card p-8 rounded-lg">
+                    <div class="text-4xl mb-4 text-white">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">ИННОВАЦИИ</h3>
+                    <p class="text-gray-300">
+                        Постоянно экспериментируем с новыми тканями, кроем и технологиями производства.
+                    </p>
+                </div>
+                
+                <div class="value-card p-8 rounded-lg">
+                    <div class="text-4xl mb-4 text-white">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">СООБЩЕСТВО</h3>
+                    <p class="text-gray-300">
+                        Мы строим сообщество единомышленников, которые разделяют наши ценности и любовь к стилю.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section> -->
+
+    <!-- Team Section -->
+    <!-- <section class="py-16 px-4">
+        <div class="container mx-auto">
+            <h2 class="section-title text-4xl mb-12 text-center">КОМАНДА</h2>
+            
+            <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div class="team-member text-center">
+                    <div class="rounded-full overflow-hidden mb-4 mx-auto w-48 h-48">
+                        <img src="/images/team1.jpg" alt="Основатель" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-semibold">АЛИШЕР</h3>
+                    <p class="text-gray-400">Основатель</p>
+                </div>
+                
+                <div class="team-member text-center">
+                    <div class="rounded-full overflow-hidden mb-4 mx-auto w-48 h-48">
+                        <img src="/images/team2.jpg" alt="Дизайнер" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-semibold">САБИНА</h3>
+                    <p class="text-gray-400">Главный дизайнер</p>
+                </div>
+                
+                <div class="team-member text-center">
+                    <div class="rounded-full overflow-hidden mb-4 mx-auto w-48 h-48">
+                        <img src="/images/team3.jpg" alt="Маркетинг" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-semibold">ДАНИЯР</h3>
+                    <p class="text-gray-400">Маркетинг</p>
+                </div>
+            </div>
+        </div>
+    </section> -->
+
+    <!-- CTA Section -->
+    <!-- <section class="py-16 px-4 bg-gray-900">
+        <div class="container mx-auto text-center max-w-4xl">
+            <h2 class="section-title text-4xl mb-6">ПРИСОЕДИНЯЙТЕСЬ К НАШЕМУ СООБЩЕСТВУ</h2>
+            <p class="text-gray-300 mb-8 text-lg">
+                Следите за новинками, акциями и эксклюзивными предложениями в наших соцсетях
+            </p>
+            <a href="https://t.me/noeraprod" class="inline-block bg-white text-black px-8 py-3 uppercase text-sm tracking-wider font-semibold hover:bg-gray-200 transition-colors">
+                <i class="fab fa-telegram mr-2"></i> ПОДПИСАТЬСЯ В TELEGRAM
+            </a>
+        </div>
+    </section> -->
+
+    <!-- Footer -->
+    <footer class="bg-black border-t border-gray-800 py-12 px-6">
+        <div class="container mx-auto max-w-6xl grid grid-cols-1 sm:grid-cols-3 gap-8 text-gray-400 text-sm font-medium">
+            <!-- Контакты -->
+            <div>
+                <h3 class="text-white font-semibold mb-4 uppercase tracking-wide">Контакты</h3>
+                <p class="mb-6">Telegram: @noeraprod</p>
+                <div class="flex space-x-6 text-2xl">
+                    <a href="https://t.me/noeraprod" class="hover:text-white transition-colors" aria-label="Telegram">
+                        <i class="fab fa-telegram"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-12 text-center text-gray-600 text-xs">
+            &copy; 2025 NOERA. Все права защищены.
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Меню
+            const menuButton = document.getElementById('menu-button');
+            const closeMenuButton = document.getElementById('close-menu-button');
+            const slideMenu = document.getElementById('slide-menu');
+            const overlay = document.getElementById('overlay');
+
+            menuButton.addEventListener('click', () => {
+                slideMenu.classList.add('open');
+                overlay.classList.add('active');
+            });
+
+            closeMenuButton.addEventListener('click', () => {
+                slideMenu.classList.remove('open');
+                overlay.classList.remove('active');
+            });
+
+            overlay.addEventListener('click', () => {
+                slideMenu.classList.remove('open');
+                overlay.classList.remove('active');
+            });
+
+            // Плавный скролл
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

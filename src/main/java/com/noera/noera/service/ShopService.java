@@ -7,13 +7,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.noera.noera.model.Product;
 import com.noera.noera.repository.ShopRepository;
+import com.noera.noera.repository.VariantRepository;
 
 @Service
 public class ShopService {
     private ShopRepository repository;
+    private VariantRepository variantRepository;
 
-    public ShopService(ShopRepository repository){
+    public ShopService(ShopRepository repository, VariantRepository variantRepository){
         this.repository = repository;
+        this.variantRepository = variantRepository;
     }
 
     public List<Product> findAll(){
@@ -36,6 +39,16 @@ public class ShopService {
 //             .orElseThrow(() -> new RuntimeException("Товар не найден"));
 // }
     public List<Product> findByName(String name) {
+        return repository.findAllByName(name);
+    }
+
+    public void deleteVariant(Integer productId, Integer variantId) {
+        System.out.println("SErvice");
+        System.out.println(productId + " " +  variantId);
+        variantRepository.deleteById(variantId);
+    }
+
+    public Product findOneByName(String name) {
         return repository.findByName(name);
     }
 }

@@ -1,173 +1,225 @@
 package com.noera.noera.controller;
 
+import com.noera.noera.model.Product;
+import com.noera.noera.model.ProductColor;
+import com.noera.noera.model.ProductSize;
+import com.noera.noera.service.ColorService;
+import com.noera.noera.service.ShopService;
+import com.noera.noera.service.SizeService;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.service.annotation.DeleteExchange;
-
-import com.noera.noera.model.Product;
-import com.noera.noera.model.ProductVariant;
-import com.noera.noera.service.ShopService;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 
 
 @Controller
 @RequestMapping("/admin")
-// @RequiredArgsConstructor
 public class AdminController {
     private static final String UPLOAD_DIR = "src/main/resources/static/images/";
-    @Autowired
-    private ShopService service;
+    
+    private final ShopService service;
+    private final SizeService sizeService;
+    private final ColorService colorService;
+
+    public AdminController(ShopService service, SizeService sizeService, ColorService colorService) {
+        this.service = service;
+        this.sizeService = sizeService;
+        this.colorService = colorService;
+    }
 
     @GetMapping("/products")
-    public String getMethodName(Model model) {
+    public String getProducts(Model model) {
         List<Product> products = service.findAll();
         model.addAttribute("products", products);
         model.addAttribute("product", new Product());
         return "ad";
     }
 
-    // @PostMapping("/products")
-    // public String addProduct(@ModelAttribute Product product) {
-
-    //     service.save(product);
-    //     return "redirect:/admin/products";
-    // }
-    
-    @PostMapping("/products/delete/{id}")
-    public String deleteProduct(@PathVariable Integer id){
-        service.delete(id);
-        return "redirect:/admin/products";
-    }
-
-    // @PostMapping("/products")
-    // public String postMethodName(@ModelAttribute Product product, @RequestParam("image") MultipartFile file) {
-    //     System.out.println("FADLF");
-    //     if (!file.isEmpty()){
-    //         try{
-    //             System.out.println("FADLF");
-    //             Path path = Paths.get("src/main/resources/static/images/" + file.getOriginalFilename());
-    //             // Files.createDirectories(path.getParent());
-    //             Files.write(path, file.getBytes());
-    //         }
-    //         catch (IOException e){
-    //             e.printStackTrace();
-    //         }
-    //     }
-    //     // product.setImageUrl("/images/" + file.getOriginalFilename());
-    //     service.save(product);
-    //     return "redirect:/admin/products";
-    // }
     @PostMapping("/products")
     public String addProduct(
         @ModelAttribute Product product,
         MultipartHttpServletRequest request) {
+        
+        request.getParameterMap().forEach((key, value) -> {
+            System.out.println("Param: " + key + " = " + Arrays.toString(value));
+        });
+        
+        // Debug logging to see all files
+        request.getFileMap().forEach((key, value) -> {
+            System.out.println("File: " + key + " = " + (value != null ? value.getOriginalFilename() : "null"));
+        });
 
-        int variantCount = 0;
-        List<ProductVariant> variants = new ArrayList<>();
-        
-        // Собираем все индексы вариантов
+        List<ProductSize> sizes = new ArrayList<>();
         Map<String, String[]> parameterMap = request.getParameterMap();
-        Set<Integer> variantIndices = new TreeSet<>();
         
+        // Создаем директорию для загрузки, если её нет
+        try {
+            Path uploadPath = Paths.get(UPLOAD_DIR);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "redirect:/admin/products?error=upload_dir";
+        }
+
+        // Обработка размеров и цветов
+        Set<Integer> sizeIndices = new TreeSet<>();
         for (String paramName : parameterMap.keySet()) {
-            if (paramName.matches("variants\\[\\d+\\]\\.price")) {
+            if (paramName.matches("sizes\\[\\d+\\]\\.sizeName")) {
                 int index = Integer.parseInt(paramName.replaceAll(".*\\[(\\d+)\\].*", "$1"));
-                variantIndices.add(index);
+                sizeIndices.add(index);
             }
         }
-        
-        // Обрабатываем каждый вариант
-        for (int index : variantIndices) {
-            ProductVariant variant = new ProductVariant();
-            
-            // Обработка цены
-            String priceStr = request.getParameter("variants[" + index + "].price");
-            if (priceStr != null && !priceStr.isEmpty()) {
-                try {
-                    // Заменяем запятые на точки для корректного парсинга
-                    priceStr = priceStr.replace(',', '.');
-                    variant.setPrice(new BigDecimal(priceStr));
-                } catch (NumberFormatException e) {
-                    variant.setPrice(BigDecimal.ZERO);
+
+        for (int sizeIndex : sizeIndices) {
+            ProductSize size = new ProductSize();
+            String sizeName = getLastNonEmptyValue(request.getParameterValues("sizes[" + sizeIndex + "].sizeName"));
+            size.setSizeName(sizeName);
+
+            // Обработка цветов
+            Set<Integer> colorIndices = new TreeSet<>();
+            for (String paramName : parameterMap.keySet()) {
+                if (paramName.matches("sizes\\[" + sizeIndex + "\\]\\.colors\\[\\d+\\]\\.colorName")) {
+                    int colorIndex = Integer.parseInt(paramName.replaceAll(".*\\[(\\d+)\\].*", "$1"));
+                    colorIndices.add(colorIndex);
                 }
             }
-            
-            // Обработка цвета
-            String color = request.getParameter("variants[" + index + "].color");
-            variant.setColor(color != null ? color : "");
-            System.out.println(color);
-            // Обработка количества
-            String quantityStr = request.getParameter("variants[" + index + "].quantity");
-            if (quantityStr != null && !quantityStr.isEmpty()) {
-                try {
-                    variant.setQuantity(Integer.parseInt(quantityStr));
-                } catch (NumberFormatException e) {
-                    variant.setQuantity(0);
+
+            List<ProductColor> colors = new ArrayList<>();
+            for (int colorIndex : colorIndices) {
+                ProductColor color = new ProductColor();
+                color.setColorName(getLastNonEmptyValue(
+                    request.getParameterValues("sizes[" + sizeIndex + "].colors[" + colorIndex + "].colorName")));
+
+                String quantityStr = getLastNonEmptyValue(
+                    request.getParameterValues("sizes[" + sizeIndex + "].colors[" + colorIndex + "].quantity"));
+                color.setQuantity(quantityStr != null ? Integer.parseInt(quantityStr) : 0);
+
+                // Обработка изображений
+                MultipartFile imageFile = request.getFile("sizeColorImages[" + sizeIndex + "]" + "[" + colorIndex + "]");
+                if (imageFile != null && !imageFile.isEmpty()) {
+                    System.out.println("Found image file: " + imageFile.getOriginalFilename() + ", size: " + imageFile.getSize());
+                    String imageUrl = saveImage(imageFile);
+                    color.setImageUrl(imageUrl);
+                } else {
+                    System.out.println("No image file found for size " + sizeIndex + " color " + colorIndex);
                 }
+
+                MultipartFile hoverImageFile = request.getFile("sizeColorHoverImages[" + sizeIndex + "]" + "[" + colorIndex + "]");
+                if (hoverImageFile != null && !hoverImageFile.isEmpty()) {
+                    String hoverImageUrl = saveImage(hoverImageFile);
+                    color.setHoverImageUrl(hoverImageUrl);
+                }
+
+                color.setProductSize(size);
+                colors.add(color);
             }
-            
-            // Обработка изображений
-            MultipartFile imageFile = request.getFile("variantImages[" + index + "]");
-            if (imageFile != null && !imageFile.isEmpty()) {
-                String imageUrl = saveImage(imageFile);
-                variant.setImageUrl(imageUrl);
-            }
-            
-            MultipartFile hoverImageFile = request.getFile("variantHoverImages[" + index + "]");
-            if (hoverImageFile != null && !hoverImageFile.isEmpty()) {
-                String hoverImageUrl = saveImage(hoverImageFile);
-                variant.setHoverImageUrl(hoverImageUrl);
-            }
-            if (variant.getPrice() != null){
-                variant.setProduct(product);
-                variants.add(variant);
+
+            size.setColors(colors);
+            size.setProduct(product);
+            sizes.add(size);
         }
-            
-        }
-        
-        product.setVariants(variants);
+
+        product.setSizes(sizes);
         service.save(product);
         return "redirect:/admin/products";
     }
 
+    private String getLastNonEmptyValue(String[] values) {
+        if (values == null || values.length == 0) return null;
+        for (int i = values.length - 1; i >= 0; i--) {
+            if (values[i] != null && !values[i].trim().isEmpty()) {
+                return values[i].trim();
+            }
+        }
+        return null;
+    }
+
     private String saveImage(MultipartFile file) {
         try {
+            if (file == null || file.isEmpty()) {
+                System.out.println("File is null or empty");
+                return null;
+            }
+
             String originalFilename = file.getOriginalFilename();
+            if (originalFilename == null || originalFilename.isEmpty()) {
+                System.out.println("Original filename is empty");
+                return null;
+            }
+
             String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
             String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
-            
             Path path = Paths.get(UPLOAD_DIR + uniqueFileName);
-            Files.write(path, file.getBytes());
-            
+
+            System.out.println("Saving file to: " + path.toAbsolutePath());
+            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+
             return "/images/" + uniqueFileName;
         } catch (IOException e) {
+            System.err.println("Failed to save image: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
+    }
+
+    @PostMapping("/products/delete/{id}")
+    public String deleteProduct(@PathVariable Integer id) {
+        service.delete(id);
+        return "redirect:/admin/products";
+    }
+    @PostMapping("/products/image")
+    public String handleProductUpload(
+            @RequestParam String name,
+            @RequestParam String size,
+            @RequestParam String color,
+            @RequestParam("image") MultipartFile imageFile,
+            @RequestParam(value = "hoverImage", required = false) MultipartFile hoverImageFile) {
+
+        // ProductColor color = new ProductColor();
+        System.out.println(name + " " + size + " " + color);
+        Product product = service.findOneByName(name);
+        ProductSize productSize = sizeService.findByProductIdAndSizeName(product.getId(), size);
+        ProductColor productColor = colorService.findBySizeIdAndColorName(productSize.getId(), color);
+        System.out.println(productColor.getId());
+        // productColor.setImageUrl()
+        // service.save(product);
+        if (imageFile != null && !imageFile.isEmpty()) {
+                System.out.println("Found image file: " + imageFile.getOriginalFilename() + ", size: " + imageFile.getSize());
+                String imageUrl = saveImage(imageFile);
+                productColor.setImageUrl(imageUrl);
+            } else {
+                System.out.println("No image file found for size ");
+            }
+
+            
+            if (hoverImageFile != null && !hoverImageFile.isEmpty()) {
+                String hoverImageUrl = saveImage(hoverImageFile);
+                productColor.setHoverImageUrl(hoverImageUrl);
+            }
+        service.save(product);
+        return "redirect:/admin/products"; // страница успешного добавления
+    }
+    
+   @PostMapping("/products/{productId}/sizes/{sizeId}/delete")
+    public String deleteSize(@PathVariable Integer productId, @PathVariable Integer sizeId) {
+        sizeService.deleteSize(sizeId);
+        return "redirect:/admin/products";
+    }
+
+    @PostMapping("/products/{productId}/colors/{colorId}/delete")
+    public String deleteColor(@PathVariable Integer productId, @PathVariable Integer colorId) {
+        colorService.deleteColor(colorId);
+        return "redirect:/admin/products";
     }
 }

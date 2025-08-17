@@ -159,7 +159,7 @@
             <ul class="flex flex-col gap-2">
                 <li><a href="/gallery" class="nav-link">Галерея</a></li>
                 <li><a href="/deliveryinfo" class="nav-link">Доставка</a></li>
-                <li><a href="/refund" class="nav-link">Возврат</a></li>
+                <!-- <li><a href="/refund" class="nav-link">Возврат</a></li> -->
                 <li><a href="/about" class="nav-link">О нас</a></li>
             </ul>
         </div>
@@ -187,29 +187,32 @@
                 <div class="product-card group" th:each="product : ${products}">
                     <a th:href="@{'/products/' + ${product.id}}" class="block">
                         <div class="relative overflow-hidden mb-4 image-container" style="aspect-ratio: 1/1;">
-                            <!-- Main product image -->
-                            <img th:if="${not #lists.isEmpty(product.variants)}"
-                                 th:src="@{${product.variants[0].imageUrl}}" 
+                            <!-- Используем первое изображение из первого размера и цвета -->
+                            <img th:if="${not #lists.isEmpty(product.sizes) and not #lists.isEmpty(product.sizes[0].colors)}"
+                                 th:src="@{${product.sizes[0].colors[0].imageUrl}}" 
                                  th:alt="${product.name}" 
                                  class="w-full h-full object-cover main-img">
                                  
-                            <!-- Hover image (falls back to main image if not available) -->
-                            <img th:if="${not #lists.isEmpty(product.variants)}"
-                                 th:src="@{${product.variants[0].hoverImageUrl != null ? product.variants[0].hoverImageUrl : product.variants[0].imageUrl}}" 
-                                 th:alt="${product.name} + ' - hover'" 
-                                 class="w-full h-full object-cover hover-img" />
+                            <!-- Запасное изображение, если нет цветов -->
+                            <img th:if="${not #lists.isEmpty(product.sizes) and not #lists.isEmpty(product.sizes[0].colors)}"
+                                th:src="@{${product.sizes[0].colors[0].hoverImageUrl != null ? 
+                                    product.sizes[0].colors[0].hoverImageUrl : 
+                                    product.sizes[0].colors[0].imageUrl}}" 
+                                th:alt="${product.name + ' (hover)'}" 
+                                class="hover-img">
                         </div>
                         <div class="text-center">
                             <h3 class="text-white font-medium mb-1" th:text="${product.name}"></h3>
-                            <!-- Show price range if multiple variants exist -->
-                            <!-- <p class="text-gray-400" th:if="${#lists.size(product.variants) > 1}">
-                                От <span th:text="${#numbers.formatDecimal(#aggregates.min(product.variants.![price]), 1, 2, 'COMMA')}"></span> UZS
-                            </p> -->
-                            <!-- Show single price if only one variant -->
-                            <!-- <p class="text-gray-400" th:unless="${#lists.size(product.variants) > 1}">
-                                <span th:if="${not #lists.isEmpty(product.variants)}" 
-                                      th:text="${#numbers.formatDecimal(product.variants[0].price, 1, 2, 'COMMA')}"></span> UZS
-                            </p> -->
+                            <p class="text-gray-400">
+                                <span th:text="${#numbers.formatDecimal(product.price, 1, 2, 'COMMA')}"></span> UZS
+                            </p>
+                            <!-- Показываем доступные размеры -->
+                            <div class="mt-2 flex flex-wrap justify-center gap-1">
+                                <span th:each="size : ${product.sizes}" 
+                                      class="text-xs border border-gray-600 px-2 py-1 rounded"
+                                      th:text="${size.sizeName}">
+                                </span>
+                            </div>
                         </div>
                     </a>
                     <a class="block mt-2 bg-white text-black py-2 px-4 rounded text-center hover:bg-gray-200 transition-colors"

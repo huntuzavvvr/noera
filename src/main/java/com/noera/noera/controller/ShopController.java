@@ -1,7 +1,8 @@
 package com.noera.noera.controller;
 
 import com.noera.noera.model.Product;
-import com.noera.noera.model.ProductVariant;
+import com.noera.noera.model.ProductSize;
+import com.noera.noera.model.ProductColor;
 import com.noera.noera.service.ShopService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,63 +45,67 @@ public class ShopController {
 
     @GetMapping("/about")
     public String getAbout() {
-        return "redirect:/";
+        return "about";
     }
 
     @GetMapping("/products/{id}")
-    public String getDescription(@PathVariable Integer id, 
-                               @RequestParam(required = false) String color,
-                               @RequestParam(required = false) String size,
-                               Model model) {
+    public String getProductDescription(@PathVariable Integer id, 
+                                      @RequestParam(required = false) String sizeName,
+                                      @RequestParam(required = false) Integer colorId,
+                                      Model model) {
+        System.out.println(sizeName);
         Product product = service.findById(id);
         if (product == null) {
             return "redirect:/";
         }
 
-        // Get all variants for this product
-        List<ProductVariant> variants = product.getVariants();
+        // Получаем все размеры товара
+        List<ProductSize> sizes = product.getSizes();
         
-        // Find selected variant based on color parameter
-        ProductVariant selectedVariant = variants.stream()
-                .filter(v -> color == null || color.equalsIgnoreCase(v.getColor()))
+        // Находим выбранный размер (или первый доступный)
+        ProductSize selectedSize = sizes.stream()
+                .filter(s -> sizeName == null || sizeName.equalsIgnoreCase(s.getSizeName()))
                 .findFirst()
-                .orElse(variants.isEmpty() ? null : variants.get(0));
+                .orElse(sizes.isEmpty() ? null : sizes.get(0));
+        
+        // Получаем все цвета для выбранного размера
+        List<ProductColor> colors = selectedSize != null ? selectedSize.getColors() : Collections.emptyList();
+        
+        // Находим выбранный цвет (или первый доступный)
+        ProductColor selectedColor = colors.stream()
+                .filter(c -> colorId == null || colorId.equals(c.getId()))
+                .findFirst()
+                .orElse(colors.isEmpty() ? null : colors.get(0));
 
-        // Get all unique colors from variants
-        Set<String> availableColors = variants.stream()
-                .map(ProductVariant::getColor)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-
-        // Get all unique sizes from variants (assuming size is stored somewhere)
-        // This is just an example - you'll need to adjust based on your actual size storage
-        Set<String> availableSizes = variants.stream()
-                .filter(v -> v.getQuantity() > 0) // Only show sizes that are available
-                .map(v -> "S") // Replace with actual size property if you have one
-                .collect(Collectors.toSet());
-
-        // Get all image URLs for the gallery
-        List<String> allProductImages = variants.stream()
-                .flatMap(v -> Arrays.stream(new String[]{v.getImageUrl(), v.getHoverImageUrl()}))
+        // Получаем все уникальные цвета для всех размеров (для галереи)
+        List<String> allProductImages = product.getSizes().stream()
+                .flatMap(size -> size.getColors().stream())
+                .map(ProductColor::getImageUrl)
                 .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
 
+        // Добавляем hover-изображения если они есть
+        product.getSizes().stream()
+                .flatMap(size -> size.getColors().stream())
+                .map(ProductColor::getHoverImageUrl)
+                .filter(Objects::nonNull)
+                .forEach(allProductImages::add);
+        System.out.println(selectedSize.getSizeName());
+        System.out.println(selectedColor.getColorName());
+        // System.out.println(selectedColor.getColorName());
         model.addAttribute("product", product);
-        model.addAttribute("selectedVariant", selectedVariant);
-        model.addAttribute("selectedSize", size);
-        model.addAttribute("availableColors", availableColors);
-        model.addAttribute("availableSizes", availableSizes);
+        model.addAttribute("selectedSize", selectedSize);
+        model.addAttribute("selectedColor", selectedColor);
+        model.addAttribute("availableColors", colors);
         model.addAttribute("allProductImages", allProductImages);
 
         return "description";
     }
 
-    // Utility method to check if size is available
-    private boolean isSizeAvailable(String size, List<ProductVariant> variants) {
-        // Implement your size availability logic here
-        // This is just a placeholder - adjust based on your actual implementation
-        return variants.stream()
-                .anyMatch(v -> v.getQuantity() > 0 && size.equals("S")); // Replace with actual size check
+    // Вспомогательный метод для проверки доступности размера
+    private boolean isSizeAvailable(ProductSize size) {
+        return size != null && size.getColors().stream()
+                .anyMatch(color -> color.getQuantity() > 0);
     }
 }

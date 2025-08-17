@@ -59,16 +59,22 @@
         <div>
             <div class="bg-gray-900 rounded-lg overflow-hidden">
                 <img id="mainProductImage"
-                     th:src="@{${selectedVariant != null ? selectedVariant.imageUrl : product.variants[0].imageUrl}}" 
+                     th:src="@{${selectedColor != null ? selectedColor.imageUrl : product.sizes[0].colors[0].imageUrl}}" 
                      th:alt="${product.name}" 
                      class="w-full main-image">
             </div>
             <div id="productGallery" class="product-gallery">
-                <img th:each="img : ${allProductImages}" 
-                     th:src="@{${img}}" 
-                     class="thumbnail rounded" 
-                     th:classappend="${img == (selectedVariant != null ? selectedVariant.imageUrl : product.variants[0].imageUrl)} ? 'active' : ''"
-                     onclick="changeMainImage(this, this.src)">
+                <!-- Основное изображение -->
+                <img th:if="${selectedColor != null}"
+                    th:src="@{${selectedColor.imageUrl}}" 
+                    class="thumbnail active rounded" 
+                    onclick="changeMainImage(this, this.src)">
+                
+                <!-- Hover изображение (если есть) -->
+                <img th:if="${selectedColor != null and selectedColor.hoverImageUrl != null}"
+                    th:src="@{${selectedColor.hoverImageUrl}}" 
+                    class="thumbnail rounded" 
+                    onclick="changeMainImage(this, this.src)">
             </div>
         </div>
 
@@ -78,52 +84,51 @@
 
             <div class="flex items-center mb-6">
                 <span class="text-2xl font-bold mr-4">
-                    <span th:if="${selectedVariant != null}"
-                        id="price" 
-                        th:text="${#numbers.formatDecimal(selectedVariant.price, 0, 0)} + ' UZS'"></span>
-
-                    <span th:unless="${selectedVariant != null}"
-                        id="price" 
-                        th:text="${#numbers.formatDecimal(product.variants[0].price, 0, 0)} + ' UZS'"></span>
-
+                    <span id="price" th:text="${#numbers.formatDecimal(product.price, 0, 0)} + ' UZS'"></span>
                 </span>
-                <span class="text-green-500 text-sm" th:if="${(selectedVariant != null ? selectedVariant.quantity : product.variants[0].quantity) > 0}">В наличии</span>
-                <span class="text-red-500 text-sm" th:unless="${(selectedVariant != null ? selectedVariant.quantity : product.variants[0].quantity) > 0}">Нет в наличии</span>
+                <span class="text-green-500 text-sm" 
+                      th:if="${(selectedColor != null ? selectedColor.quantity : product.sizes[0].colors[0].quantity) > 0}">
+                    В наличии
+                </span>
+                <span class="text-red-500 text-sm" 
+                      th:unless="${(selectedColor != null ? selectedColor.quantity : product.sizes[0].colors[0].quantity) > 0}">
+                    Нет в наличии
+                </span>
+            </div>
+
+            <!-- Size Selection -->
+            <div class="mb-8" th:if="${not #lists.isEmpty(product.sizes)}">
+                <h3 class="text-lg font-semibold mb-3">РАЗМЕР</h3>
+                <div class="grid grid-cols-5 gap-3 max-w-md">
+                    <div th:each="size : ${product.sizes}"
+     class="size-option"
+     th:classappend="${(selectedSize != null && selectedSize.sizeName == size.sizeName)} ? 'selected' : ''"
+     th:text="${size.sizeName}"
+     th:data-size="${size.sizeName}"
+     onclick="selectSize(this)">
+</div>
+                </div>
             </div>
 
             <!-- Color Selection -->
             <div class="mb-8" th:if="${not #lists.isEmpty(availableColors)}">
                 <h3 class="text-lg font-semibold mb-3">ЦВЕТ</h3>
-                <div class="flex space-x-3">
+                <div class="flex flex-wrap gap-3">
                     <div th:each="color : ${availableColors}" 
-                        class="color-option"
-                        th:style="'background-color: ' + ${color} + ';'"
-                        th:classappend="${(selectedVariant != null ? selectedVariant.color : product.variants[0].color) == color} ? 'selected' : ''"
-                        th:attr="data-color=${color}"
-                        onclick="selectColor(this)">
+                         class="color-option"
+                         th:style="'background-color: ' + ${color.colorName} + ';'"
+                         th:classappend="${(selectedColor != null && selectedColor.colorName == color.colorName)} ? 'selected' : ''"
+                         th:attr="data-color-id=${color.id}, data-color-name=${color.colorName}"
+                         onclick="selectColor(this)">
+                         <span class="sr-only" th:text="${color.colorName}"></span>
                     </div>
                 </div>
             </div>
 
-            <!-- Size Selection -->
-            <!-- <div class="mb-8" th:if="${not #lists.isEmpty(availableSizes)}">
-                <h3 class="text-lg font-semibold mb-3">РАЗМЕР</h3>
-                <div class="grid grid-cols-5 gap-3 max-w-md">
-                    <div th:each="size : ${availableSizes}"
-                         class="size-option"
-                         th:classappend="${(selectedSize != null && selectedSize == size)} ? 'selected' : ''"
-                         th:classappend="${!isSizeAvailable(size)} ? 'unavailable' : ''"
-                         th:text="${size}"
-                         th:data-size="${size}"
-                         onclick="selectSize(this, '${size}')">
-                    </div>
-                </div>
-            </div> -->
-
             <!-- Add to Cart Button -->
             <button id="orderButton"
                 class="w-full bg-white text-black py-4 uppercase font-bold tracking-wider hover:bg-gray-200 transition-colors mb-6"
-                th:disabled="${(selectedVariant != null ? selectedVariant.quantity : product.variants[0].quantity) <= 0}">
+                th:disabled="${(selectedColor != null ? selectedColor.quantity : product.sizes[0].colors[0].quantity) <= 0}">
                 ЗАКАЗАТЬ
             </button>
 
@@ -159,52 +164,56 @@
         document.getElementById('mainProductImage').src = imageUrl;
     }
 
-    function selectColor(element) {
-    const color = element.getAttribute('data-color');
-    if (!color) return;
-    
-    // Обновляем URL с выбранным цветом
+    // function selectSize(element, sizeName) {
+    //     const currentUrl = new URL(window.location.href);
+    //     currentUrl.searchParams.set('size', sizeName);
+    //     window.location.href = currentUrl.toString();
+    // }
+
+    function selectSize(element) {
+    const sizeName = element.getAttribute('data-size');
     const currentUrl = new URL(window.location.href);
-    currentUrl.searchParams.set('color', color);
+    currentUrl.searchParams.set('sizeName', sizeName); // Используем sizeName вместо size
     window.location.href = currentUrl.toString();
 }
 
-    function selectSize(element, size) {
-        if(element.classList.contains('unavailable')) return;
+    function selectColor(element) {
+        const colorId = element.getAttribute('data-color-id');
+        const colorName = element.getAttribute('data-color-name');
         
-        // Обновляем URL с выбранным размером
         const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set('size', size);
+        currentUrl.searchParams.set('color', colorName);
+        currentUrl.searchParams.set('colorId', colorId);
         window.location.href = currentUrl.toString();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-    const orderButton = document.getElementById('orderButton');
-    if (!orderButton) return;
+        const orderButton = document.getElementById('orderButton');
+        if (!orderButton) return;
 
-    orderButton.addEventListener('click', function() {
-        const productName = document.querySelector('.section-title').textContent;
-        const price = document.getElementById('price').textContent;
-        const colorElement = document.querySelector('.color-option.selected');
-        const color = colorElement ? colorElement.dataset.color : 'не выбран';
+        orderButton.addEventListener('click', function() {
+            const productName = document.querySelector('.section-title').textContent;
+            const price = document.getElementById('price').textContent;
+            
+            const colorElement = document.querySelector('.color-option.selected');
+            const color = colorElement ? colorElement.getAttribute('data-color-name') : 'не выбран';
+            
+            const sizeElement = document.querySelector('.size-option.selected');
+            const size = sizeElement ? sizeElement.textContent : 'не выбран';
 
-        // const sizeElement = document.querySelector('.size-option.selected');
-        // const size = sizeElement ? sizeElement.dataset.size : 'не выбран';
-
-        // const message = `Здравствуйте! Хочу заказать:\n\n` +
-        //                 `Товар: ${productName}\n` +
-        //                 `Цвет: ${color}\n` +
-        //                 `Размер: ${size}\n` +
-        //                 `Цена: ${price}\n\n` +
-        //                 `Свяжитесь со мной для уточнения деталей.`;
-
-        const encodedMessage = encodeURIComponent(`Здравствуйте! Я хочу заказать товар:\nНазвание: ${productName}\nЦена: ${price}\nЦвет: ${color}`);
-        const telegramLink = `https://t.me/huntuzavvvr?text=${encodedMessage}`;
-
-        // Открываем Telegram
-        window.open(telegramLink, '_blank');
+            const encodedMessage = encodeURIComponent(
+                `Здравствуйте! Я хочу заказать:\n\n` +
+                `Товар: ${productName}\n` +
+                `Цена: ${price}\n` +
+                `Размер: ${size}\n` +
+                `Цвет: ${color}\n\n` +
+                `Пожалуйста, свяжитесь со мной для подтверждения заказа.`
+            );
+            
+            const telegramLink = `https://t.me/huntuzavvvr?text=${encodedMessage}`;
+            window.open(telegramLink, '_blank');
+        });
     });
-});
 </script>
 
 </body>

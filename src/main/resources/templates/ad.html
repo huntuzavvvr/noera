@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -30,7 +30,7 @@
         .product-image:hover {
             transform: scale(1.5);
         }
-        .variant-section {
+        .size-section, .color-section {
             border: 1px dashed #ccc;
             padding: 1rem;
             margin-bottom: 1rem;
@@ -42,8 +42,8 @@
     <div class="container mx-auto px-4 py-8">
         <!-- Header -->
         <header class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-800">Панель Админа</h1>
-            <p class="text-gray-600">Управлять товарами</p>
+            <h1 class="text-3xl font-bold text-gray-800">Панель Администратора</h1>
+            <p class="text-gray-600">Управление товарами с размерами и цветами</p>
             <form th:action="@{/logout}" method="post">
                 <button type="submit" class="text-blue-600 hover:text-blue-800">Выйти</button>
             </form>
@@ -52,81 +52,180 @@
         <!-- Add Product Form -->
         <section class="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Добавить товар</h2>
-            <form th:action="@{/admin/products}" th:object="${product}" method="post" class="space-y-4" enctype="multipart/form-data">
+            <form th:action="@{/admin/products}" th:object="${product}" method="post" class="space-y-4" enctype="multipart/form-data" novalidate>
                 <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Имя товара</label>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Название товара</label>
                     <input type="text" th:field="*{name}" id="name" required 
                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 
-                <!-- Variants section -->
-                <div id="variants-container">
-                    <h3 class="text-lg font-medium text-gray-800 mb-2">Варианты товара</h3>
-                    
-                    <!-- Template for new variant (hidden) -->
-                    <div id="variant-template" class="variant-section">
-                        <div class="flex justify-between items-center mb-2">
-                            <h4 class="font-medium">Вариант</h4>
-                            <button type="button" class="text-red-500 hover:text-red-700 remove-variant">Удалить</button>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Цена</label>
-                                <input type="number" step="0.01" name="variants[0].price" 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Цвет</label>
-                                <input type="text" name="variants[0].color" 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Количество</label>
-                                <input type="number" name="variants[0].quantity" 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Основное изображение</label>
-                            <input type="file" name="variantImages[0]" accept="image/*" class="mb-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Дополнительное изображение (hover)</label>
-                            <input type="file" name="variantHoverImages[0]" accept="image/*">
-                        </div>
-                    </div>
-                    <div id="variant-template" class="variant-section">
-                        <div class="flex justify-between items-center mb-2">
-                            <h4 class="font-medium">Вариант</h4>
-                            <button type="button" class="text-red-500 hover:text-red-700 remove-variant">Удалить</button>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Цена</label>
-                                <input type="number" step="0.01" name="variants[1].price" 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Цвет</label>
-                                <input type="text" name="variants[1].color" 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Количество</label>
-                                <input type="number" name="variants[1].quantity" 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Основное изображение</label>
-                            <input type="file" name="variantImages[1]" accept="image/*" class="mb-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Дополнительное изображение (hover)</label>
-                            <input type="file" name="variantHoverImages[1]" accept="image/*">
-                        </div>
-                    </div>
-                    <!-- Existing variants will be added here by JavaScript -->
+                <div>
+                    <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Цена (UZS)</label>
+                    <input type="number" th:field="*{price}" id="price" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 
-                <button type="button" id="add-variant" class="btn-primary text-white px-4 py-2 rounded-md font-medium">
-                    Добавить вариант
+                <!-- Sizes section -->
+                <div id="sizes-container">
+                    <h3 class="text-lg font-medium text-gray-800 mb-2">Размеры товара</h3>
+                    
+                    <!-- Template for new size -->
+                    <div id="size-template" class="size-section hidden">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-medium">Размер</h4>
+                            <button type="button" class="text-red-500 hover:text-red-700 remove-size">Удалить</button>
+                        </div>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Название размера</label>
+                                <input type="text" name="sizes[0].sizeName" required
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            
+                            <!-- Colors for this size -->
+                            <div class="colors-container">
+                                <h5 class="text-md font-medium text-gray-700 mb-2">Цвета для этого размера</h5>
+                                
+                                <!-- Color template -->
+                                <div class="color-template color-section hidden">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h6 class="font-medium">Цвет</h6>
+                                        <button type="button" class="text-red-500 hover:text-red-700 remove-color">Удалить</button>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Название цвета</label>
+                                            <input type="text" name="sizes[0].colors[0].colorName" required
+                                                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Количество</label>
+                                            <input type="number" name="sizes[0].colors[0].quantity" required
+                                                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        </div>
+                                    </div>
+                                    <!-- <div class="mt-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Основное изображение</label>
+                                        <input type="file" name="sizeColorImages[0][0]" accept="image/*" required class="mb-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Дополнительное изображение (hover)</label>
+                                        <input type="file" name="sizeColorHoverImages[0][0]" accept="image/*">
+                                    </div> -->
+                                </div>
+                                
+                                <!-- Initial color for size -->
+                                <div class="color-section">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h6 class="font-medium">Цвет 1</h6>
+                                        <button type="button" class="text-red-500 hover:text-red-700 remove-color">Удалить</button>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Название цвета</label>
+                                            <input type="text" name="sizes[0].colors[0].colorName" required
+                                                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Количество</label>
+                                            <input type="number" name="sizes[0].colors[0].quantity" required
+                                                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        </div>
+                                    </div>
+                                    <!-- <div class="mt-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Основное изображение</label>
+                                        <input type="file" name="sizeColorImages[0][0]" accept="image/*" required class="mb-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Дополнительное изображение (hover)</label>
+                                        <input type="file" name="sizeColorHoverImages[0][0]" accept="image/*">
+                                    </div> -->
+                                </div>
+                            </div>
+                            
+                            <button type="button" class="add-color btn-primary text-white px-3 py-1 rounded-md text-sm font-medium">
+                                Добавить цвет
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Initial size -->
+                    <!-- Initial size -->
+<div class="size-section">
+    <div class="flex justify-between items-center mb-2">
+        <h4 class="font-medium">Размер 1</h4>
+        <button type="button" class="text-red-500 hover:text-red-700 remove-size">Удалить</button>
+    </div>
+    <div class="grid grid-cols-1 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Название размера</label>
+            <input type="text" name="sizes[0].sizeName" required
+                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <!-- Colors for this size -->
+        <div class="colors-container">
+            <h5 class="text-md font-medium text-gray-700 mb-2">Цвета для этого размера</h5>
+
+            <!-- Color template (для кнопки "Добавить цвет") -->
+            <div class="color-template color-section hidden">
+                <div class="flex justify-between items-center mb-2">
+                    <h6 class="font-medium">Цвет</h6>
+                    <button type="button" class="text-red-500 hover:text-red-700 remove-color">Удалить</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Название цвета</label>
+                        <input type="text" name="sizes[0].colors[0].colorName" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Количество</label>
+                        <input type="number" name="sizes[0].colors[0].quantity" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                <!-- <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Основное изображение</label>
+                    <input type="file" name="sizeColorImages[0][0]" accept="image/*" required class="mb-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Дополнительное изображение (hover)</label>
+                    <input type="file" name="sizeColorHoverImages[0][0]" accept="image/*">
+                </div> -->
+            </div>
+
+            <!-- Initial color -->
+            <div class="color-section">
+                <div class="flex justify-between items-center mb-2">
+                    <h6 class="font-medium">Цвет 1</h6>
+                    <button type="button" class="text-red-500 hover:text-red-700 remove-color">Удалить</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Название цвета</label>
+                        <input type="text" name="sizes[0].colors[0].colorName" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Количество</label>
+                        <input type="number" name="sizes[0].colors[0].quantity" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                <!-- <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Основное изображение</label>
+                    <input type="file" name="sizeColorImages[0][0]" accept="image/*" required class="mb-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Дополнительное изображение (hover)</label>
+                    <input type="file" name="sizeColorHoverImages[0][0]" accept="image/*">
+                </div> -->
+            </div>
+        </div>
+
+        <button type="button" class="add-color btn-primary text-white px-3 py-1 rounded-md text-sm font-medium">
+            Добавить цвет
+        </button>
+    </div>
+</div>
+
+                </div>
+                
+                <button type="button" id="add-size" class="btn-primary text-white px-4 py-2 rounded-md font-medium">
+                    Добавить размер
                 </button>
                 
                 <div class="pt-4">
@@ -137,119 +236,390 @@
             </form>
         </section>
 
+        <form th:action="@{/admin/products/image}" method="post" class="space-y-4" enctype="multipart/form-data" novalidate>
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Название товара</label>
+                    <input type="text" name="name" id="name" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div>
+                    <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Размер</label>
+                    <input type="text" name="size" id="size" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div>
+                    <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Цвет</label>
+                    <input type="text" name="color" id="color" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Основное изображение</label>
+                    <input type="file" name="image" accept="image/*" required class="mb-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Дополнительное изображение (hover)</label>
+                    <input type="file" name="hoverImage" accept="image/*">
+                </div>
+            
+                <div class="pt-4">
+                    <button type="submit" class="btn-primary text-white px-4 py-2 rounded-md font-medium">
+                        Сохранить товар
+                    </button>
+                </div>
+            </form>
+        
         <!-- Product List -->
         <section class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold text-gray-800">Список товаров</h2>
-                <p class="text-gray-600"><span th:text="${products.size()}">0</span> товаров</p>
-            </div>
-            
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">НАЗВАНИЕ</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ВАРИАНТЫ</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ДЕЙСТВИЯ</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <tr th:each="product : ${products}" class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${product.id}">1</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${product.name}">Name</td>
-                            <td class="px-6 py-4">
-                                <div class="space-y-2">
-                                    <div th:each="variant, stat : ${product.variants}" class="border-b pb-2 last:border-b-0">
-                                        <div class="flex items-center space-x-4">
-                                            <img th:if="${variant.imageUrl}" th:src="${variant.imageUrl}" alt="Variant image" 
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-gray-800">Список товаров</h2>
+        <p class="text-gray-600"><span th:text="${products.size()}">0</span> товаров</p>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">НАЗВАНИЕ</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ЦЕНА</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">РАЗМЕРЫ И ЦВЕТА</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ДЕЙСТВИЯ</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <tr th:each="product : ${products}" class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${product.id}">1</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${product.name}">Name</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${product.price} + ' UZS'">Price</td>
+                    <td class="px-6 py-4">
+                        <div class="space-y-4">
+                            <div th:each="size, sizeStat : ${product.sizes}" class="border-b pb-4 last:border-b-0">
+                                <div class="flex justify-between items-center">
+                                    <h4 class="font-medium" th:text="'Размер: ' + ${size.sizeName}"></h4>
+                                    <form th:action="@{'/admin/products/' + ${product.id} + '/sizes/' + ${size.id} + '/delete'}" method="post">
+                                        <button type="submit" 
+                                                class="btn-danger text-white px-2 py-1 rounded-md text-xs font-medium"
+                                                onclick="return confirm('Удалить весь размер?')">
+                                            Удалить размер
+                                        </button>
+                                    </form>
+                                </div>
+                                <div class="ml-4 mt-2 space-y-2">
+                                    <div th:each="color, colorStat : ${size.colors}" class="flex items-start space-x-4">
+                                        <div class="flex-shrink-0">
+                                            <img th:if="${color.imageUrl}" th:src="${color.imageUrl}" alt="Color image" 
                                                  class="product-image h-10 w-10 rounded-md object-cover cursor-pointer">
-                                            <div>
-                                                <p class="text-sm" th:text="'Цена: ' + ${variant.price} + ' UZS'"></p>
-                                                <p class="text-sm" th:text="'Цвет: ' + ${variant.color}"></p>
-                                                <p class="text-sm" th:text="'Кол-во: ' + ${variant.quantity}"></p>
-                                            </div>
+                                        </div>
+                                        <div class="flex-grow">
+                                            <p class="text-sm" th:text="'Цвет: ' + ${color.colorName}"></p>
+                                            <p class="text-sm" th:text="'Кол-во: ' + ${color.quantity}"></p>
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            <form th:action="@{'/admin/products/' + ${product.id} + '/colors/' + ${color.id} + '/delete'}" method="post">
+                                                <button type="submit" 
+                                                        class="btn-danger text-white px-2 py-1 rounded-md text-xs font-medium"
+                                                        onclick="return confirm('Удалить этот цвет?')">
+                                                    Удалить цвет
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <form th:action="@{'/admin/products/delete/' + ${product.id}}" method="post" 
-                                      onsubmit="return confirm('Вы уверены, что хотите удалить этот товар?');">
-                                    <button type="submit" class="btn-danger text-white px-3 py-1 rounded-md text-sm font-medium">
-                                        Удалить
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <form th:action="@{'/admin/products/delete/' + ${product.id}}" method="post">
+                            <button type="submit" 
+                                    class="btn-danger text-white px-3 py-1 rounded-md text-sm font-medium"
+                                    onclick="return confirm('Вы уверены, что хотите удалить этот товар?')">
+                                Удалить товар
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
     </div>
 
     <script>
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     const addVariantBtn = document.getElementById('add-variant');
-        //     const variantsContainer = document.getElementById('variants-container');
-        //     const variantTemplate = document.getElementById('variant-template');
-            
-        //     let variantCount = 0;
-            
-        //     function setupRemoveButton(variant) {
-        //         variant.querySelector('.remove-variant').addEventListener('click', function() {
-        //             variant.remove();
-        //             reindexVariants();
-        //         });
-        //     }
-            
-        //     function reindexVariants() {
-        //         const variants = variantsContainer.querySelectorAll('.variant-section:not(.hidden)');
-        //         variants.forEach((variant, index) => {
-        //             variant.querySelectorAll('input').forEach(input => {
-        //                 const name = input.getAttribute('name');
-        //                 if (name) {
-        //                     const newName = name.replace(/variants\[\d+\]/, `variants[${index}]`);
-        //                     input.setAttribute('name', newName);
-        //                 }
-        //             });
-        //         });
-        //         variantCount = variants.length;
-        //     }
-            
-        //     addVariantBtn.addEventListener('click', function() {
-        //         const newVariant = variantTemplate.cloneNode(true);
-        //         newVariant.classList.remove('hidden');
-        //         newVariant.id = '';
-                
-        //         const inputs = newVariant.querySelectorAll('input');
-        //         inputs.forEach(input => {
-        //             const name = input.getAttribute('name');
-        //             if (name) {
-        //                 const newName = name.replace(/\[\d+\]/, `[${variantCount}]`);
-        //                 input.setAttribute('name', newName);
-        //                 if (input.type !== 'file') {
-        //                     input.value = '';
-        //                 }
-        //             }
-        //         });
-                
-        //         setupRemoveButton(newVariant);
-        //         variantsContainer.appendChild(newVariant);
-        //         variantCount++;
-        //     });
-            
-        //     // Add initial variant
-        //     addVariantBtn.click();
-        // });
         document.addEventListener('DOMContentLoaded', function() {
-            const deleteForms = document.querySelectorAll('form[onsubmit]');
-            deleteForms.forEach(form => {
-                form.addEventListener('submit', function(e) {
-                    if (!confirm('Are you sure you want to delete this product?')) {
-                        e.preventDefault();
+            // Управление размерами
+            const addSizeBtn = document.getElementById('add-size');
+            const sizesContainer = document.getElementById('sizes-container');
+            const sizeTemplate = document.getElementById('size-template');
+            
+            let sizeCount = document.querySelectorAll('.size-section:not(#size-template)').length;
+            
+            // Настройка кнопок удаления для существующих размеров
+            document.querySelectorAll('.remove-size').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const sizeSection = this.closest('.size-section');
+                    if (document.querySelectorAll('.size-section:not(#size-template)').length > 1) {
+                        sizeSection.remove();
+                        reindexSizes();
+                    } else {
+                        alert('Товар должен иметь хотя бы один размер');
                     }
                 });
+            });
+            
+            // Управление цветами внутри размеров
+            document.querySelectorAll('.add-color').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const colorsContainer = this.closest('.size-section').querySelector('.colors-container');
+                    const colorTemplate = colorsContainer.querySelector('.color-template');
+                    const sizeIndex = getParentSizeIndex(this);
+                    
+                    const newColor = colorTemplate.cloneNode(true);
+                    newColor.classList.remove('hidden');
+                    newColor.id = '';
+                    
+                    // Определяем количество цветов в этом размере
+                    const colorCount = colorsContainer.querySelectorAll('.color-section:not(.color-template)').length;
+                    
+                    // Обновляем заголовок
+                    newColor.querySelector('h6').textContent = `Цвет ${colorCount + 1}`;
+                    
+                    // Обновляем имена полей
+                    newColor.querySelectorAll('input').forEach(input => {
+                        const name = input.getAttribute('name');
+                        if (name) {
+                            if (name.includes('sizes[') && name.includes('colors[')) {
+                                const newName = name.replace(/sizes\[\d+\]\.colors\[\d+\]/, `sizes[${sizeIndex}].colors[${colorCount}]`);
+                                input.setAttribute('name', newName);
+                                if (input.type !== 'file') input.value = '';
+                            } else if (name.includes('sizeColorImages[')) {
+                                const newName = name.replace(/sizeColorImages\[\d+\]\[\d+\]/, `sizeColorImages[${sizeIndex}][${colorCount}]`);
+                                input.setAttribute('name', newName);
+                                input.value = '';
+                            } else if (name.includes('sizeColorHoverImages[')) {
+                                const newName = name.replace(/sizeColorHoverImages\[\d+\]\[\d+\]/, `sizeColorHoverImages[${sizeIndex}][${colorCount}]`);
+                                input.setAttribute('name', newName);
+                                input.value = '';
+                            }
+                        }
+                    });
+                    
+                    // Добавляем обработчик для кнопки удаления
+                    newColor.querySelector('.remove-color').addEventListener('click', function() {
+                        const colorSection = this.closest('.color-section');
+                        const parentSize = colorSection.closest('.size-section');
+                        const colorsInSize = parentSize.querySelectorAll('.color-section:not(.color-template)');
+                        colorSection.remove();
+                            reindexColorsInSize(parentSize);
+                        // if (colorsInSize.length > 1) {
+                        //     colorSection.remove();
+                        //     reindexColorsInSize(parentSize);
+                        // } else {
+                        //     alert('Размер должен иметь хотя бы один цвет');
+                        // }
+                    });
+                    
+                    // Вставляем перед кнопкой "Добавить цвет"
+                    colorsContainer.appendChild(newColor);
+                    reindexColorsInSize(this.closest('.size-section'));
+                });
+            });
+            
+            // Настройка кнопок удаления для существующих цветов
+            document.querySelectorAll('.remove-color').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const colorSection = this.closest('.color-section');
+                    const parentSize = colorSection.closest('.size-section');
+                    const colorsInSize = parentSize.querySelectorAll('.color-section:not(.color-template)');
+                    colorSection.remove();
+                        reindexColorsInSize(parentSize);
+                    // if (colorsInSize.length > 1) {
+                    //     colorSection.remove();
+                    //     reindexColorsInSize(parentSize);
+                    // } else {
+                    //     alert('Размер должен иметь хотя бы один цвет');
+                    // }
+                });
+            });
+            
+            // Функция для переиндексации цветов в конкретном размере
+            function reindexColorsInSize(sizeSection) {
+                const sizeIndex = getParentSizeIndex(sizeSection);
+                const colors = sizeSection.querySelectorAll('.color-section:not(.color-template)');
+                
+                colors.forEach((color, colorIndex) => {
+                    // Обновляем заголовок
+                    color.querySelector('h6').textContent = `Цвет ${colorIndex + 1}`;
+                    
+                    // Обновляем имена полей
+                    color.querySelectorAll('input').forEach(input => {
+                        const name = input.getAttribute('name');
+                        if (name) {
+                            if (name.includes('sizes[') && name.includes('colors[')) {
+                                const newName = name.replace(/sizes\[\d+\]\.colors\[\d+\]/, `sizes[${sizeIndex}].colors[${colorIndex}]`);
+                                input.setAttribute('name', newName);
+                            } else if (name.includes('sizeColorImages[')) {
+                                const newName = name.replace(/sizeColorImages\[\d+\]\[\d+\]/, `sizeColorImages[${sizeIndex}][${colorIndex}]`);
+                                input.setAttribute('name', newName);
+                            } else if (name.includes('sizeColorHoverImages[')) {
+                                const newName = name.replace(/sizeColorHoverImages\[\d+\]\[\d+\]/, `sizeColorHoverImages[${sizeIndex}][${colorIndex}]`);
+                                input.setAttribute('name', newName);
+                            }
+                        }
+                    });
+                });
+            }
+            
+            // Функция для переиндексации всех размеров
+            function reindexSizes() {
+                const sizes = sizesContainer.querySelectorAll('.size-section:not(#size-template)');
+                
+                sizes.forEach((size, sizeIndex) => {
+                    // Обновляем заголовок
+                    size.querySelector('h4').textContent = `Размер ${sizeIndex + 1}`;
+                    
+                    // Обновляем имена полей в основном блоке размера
+                    size.querySelectorAll('input').forEach(input => {
+                        const name = input.getAttribute('name');
+                        if (name && name.includes('sizes[') && name.includes('sizeName')) {
+                            const newName = name.replace(/sizes\[\d+\]/, `sizes[${sizeIndex}]`);
+                            input.setAttribute('name', newName);
+                        }
+                    });
+                    
+                    // Переиндексируем цвета внутри этого размера
+                    reindexColorsInSize(size);
+                });
+                
+                sizeCount = sizes.length;
+            }
+            
+            // Функция для получения индекса родительского размера
+            function getParentSizeIndex(element) {
+                const sizeSection = element.closest('.size-section');
+                const sizes = sizesContainer.querySelectorAll('.size-section:not(#size-template)');
+                return Array.from(sizes).indexOf(sizeSection);
+            }
+            
+            // Добавление нового размера
+            addSizeBtn.addEventListener('click', function() {
+                const newSize = sizeTemplate.cloneNode(true);
+                newSize.classList.remove('hidden');
+                newSize.id = '';
+                
+                // Обновляем заголовок
+                newSize.querySelector('h4').textContent = `Размер ${sizeCount + 1}`;
+                
+                // Обновляем имена полей
+                newSize.querySelectorAll('input').forEach(input => {
+                    const name = input.getAttribute('name');
+                    if (name) {
+                        if (name.includes('sizes[') && name.includes('sizeName')) {
+                            const newName = name.replace(/sizes\[\d+\]/, `sizes[${sizeCount}]`);
+                            input.setAttribute('name', newName);
+                            if (input.type !== 'file') input.value = '';
+                        } else if (name.includes('sizes[') && name.includes('colors[')) {
+                            const newName = name.replace(/sizes\[\d+\]\.colors\[\d+\]/, `sizes[${sizeCount}].colors[0]`);
+                            input.setAttribute('name', newName);
+                            if (input.type !== 'file') input.value = '';
+                        } else if (name.includes('sizeColorImages[')) {
+                            const newName = name.replace(/sizeColorImages\[\d+\]\[\d+\]/, `sizeColorImages[${sizeCount}][0]`);
+                            input.setAttribute('name', newName);
+                            input.value = '';
+                        } else if (name.includes('sizeColorHoverImages[')) {
+                            const newName = name.replace(/sizeColorHoverImages\[\d+\]\[\d+\]/, `sizeColorHoverImages[${sizeCount}][0]`);
+                            input.setAttribute('name', newName);
+                            input.value = '';
+                        }
+                    }
+                });
+                
+                // Добавляем обработчик для кнопки удаления размера
+                newSize.querySelector('.remove-size').addEventListener('click', function() {
+                    const sizeSection = this.closest('.size-section');
+                    if (document.querySelectorAll('.size-section:not(#size-template)').length > 1) {
+                        sizeSection.remove();
+                        reindexSizes();
+                    } else {
+                        alert('Товар должен иметь хотя бы один размер');
+                    }
+                });
+                
+                // Добавляем обработчик для кнопки добавления цвета
+                newSize.querySelector('.add-color').addEventListener('click', function() {
+                    const colorsContainer = this.closest('.size-section').querySelector('.colors-container');
+                    const colorTemplate = colorsContainer.querySelector('.color-template');
+                    const sizeIndex = getParentSizeIndex(this);
+                    
+                    const newColor = colorTemplate.cloneNode(true);
+                    newColor.classList.remove('hidden');
+                    newColor.id = '';
+                    
+                    // Определяем количество цветов в этом размере
+                    const colorCount = colorsContainer.querySelectorAll('.color-section:not(.color-template)').length;
+                    
+                    // Обновляем заголовок
+                    newColor.querySelector('h6').textContent = `Цвет ${colorCount + 1}`;
+                    
+                    // Обновляем имена полей
+                    newColor.querySelectorAll('input').forEach(input => {
+                        const name = input.getAttribute('name');
+                        if (name) {
+                            if (name.includes('sizes[') && name.includes('colors[')) {
+                                const newName = name.replace(/sizes\[\d+\]\.colors\[\d+\]/, `sizes[${sizeIndex}].colors[${colorCount}]`);
+                                input.setAttribute('name', newName);
+                                if (input.type !== 'file') input.value = '';
+                            } else if (name.includes('sizeColorImages[')) {
+                                const newName = name.replace(/sizeColorImages\[\d+\]\[\d+\]/, `sizeColorImages[${sizeIndex}][${colorCount}]`);
+                                input.setAttribute('name', newName);
+                                input.value = '';
+                            } else if (name.includes('sizeColorHoverImages[')) {
+                                const newName = name.replace(/sizeColorHoverImages\[\d+\]\[\d+\]/, `sizeColorHoverImages[${sizeIndex}][${colorCount}]`);
+                                input.setAttribute('name', newName);
+                                input.value = '';
+                            }
+                        }
+                    });
+                    
+                    // Добавляем обработчик для кнопки удаления
+                    newColor.querySelector('.remove-color').addEventListener('click', function() {
+                        const colorSection = this.closest('.color-section');
+                        const parentSize = colorSection.closest('.size-section');
+                        const colorsInSize = parentSize.querySelectorAll('.color-section:not(.color-template)');
+                        colorSection.remove();
+                            reindexColorsInSize(parentSize);
+                        // if (colorsInSize.length > 1) {
+                        //     colorSection.remove();
+                        //     reindexColorsInSize(parentSize);
+                        // } else {
+                        //     alert('Размер должен иметь хотя бы один цвет');
+                        // }
+                    });
+                    
+                    // Вставляем перед кнопкой "Добавить цвет"
+                    colorsContainer.appendChild(newColor);
+                    reindexColorsInSize(this.closest('.size-section'));
+                });
+                
+                // Настройка кнопок удаления для существующих цветов в новом размере
+                newSize.querySelectorAll('.remove-color').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const colorSection = this.closest('.color-section');
+                        const parentSize = colorSection.closest('.size-section');
+                        const colorsInSize = parentSize.querySelectorAll('.color-section:not(.color-template)');
+                        colorSection.remove();
+                            reindexColorsInSize(parentSize);
+                        // if (colorsInSize.length > 1) {
+                        //     colorSection.remove();
+                        //     reindexColorsInSize(parentSize);
+                        // } else {
+                        //     alert('Размер должен иметь хотя бы один цвет');
+                        // }
+                    });
+                });
+                
+                sizesContainer.appendChild(newSize);
+                sizeCount++;
+                reindexSizes();
             });
         });
     </script>

@@ -8,7 +8,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.noera.noera.model.Product;
-import com.noera.noera.model.ProductVariant;
+import com.noera.noera.model.ProductSize;
+import com.noera.noera.model.ProductColor;
+// import com.noera.noera.repository.ProductRepository;
 import com.noera.noera.repository.ShopRepository;
 
 @Component
@@ -24,41 +26,81 @@ public class DataInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) throws Exception {
         if (productRepository.count() == 0) {
-
             // Создаём основной товар
-            Product product = new Product();
-            product.setName("Noera Base Hoodie");
+            Product hoodie = new Product();
+            hoodie.setName("Noera Base Hoodie");
+            hoodie.setPrice(BigDecimal.valueOf(999)); // Фиксированная цена
+            
+            // Размер S
+            ProductSize sizeS = new ProductSize();
+            sizeS.setSizeName("S");
+            
+            // Цвета для размера S
+            ProductColor sWhite = new ProductColor();
+            sWhite.setColorName("white");
+            sWhite.setQuantity(5);
+            sWhite.setImageUrl("/images/white_1.png");
+            sWhite.setHoverImageUrl("/images/white_2.png");
+            
+            ProductColor sBlack = new ProductColor();
+            sBlack.setColorName("black");
+            sBlack.setQuantity(3);
+            sBlack.setImageUrl("/images/black_1.png");
+            sBlack.setHoverImageUrl("/images/black_2.png");
+            
+            sizeS.setColors(List.of(sWhite, sBlack));
+            sWhite.setProductSize(sizeS);
+            sBlack.setProductSize(sizeS);
+            
+            // Размер M
+            ProductSize sizeM = new ProductSize();
+            sizeM.setSizeName("M");
+            
+            // Цвета для размера M
+            ProductColor mWhite = new ProductColor();
+            mWhite.setColorName("white");
+            mWhite.setQuantity(7);
+            mWhite.setImageUrl("/images/white_1.png");
+            mWhite.setHoverImageUrl("/images/white_2.png");
+            
+            ProductColor mBlack = new ProductColor();
+            mBlack.setColorName("black");
+            mBlack.setQuantity(4);
+            mBlack.setImageUrl("/images/black_1.png");
+            mBlack.setHoverImageUrl("/images/black_2.png");
+            
+            sizeM.setColors(List.of(mWhite, mBlack));
+            mWhite.setProductSize(sizeM);
+            mBlack.setProductSize(sizeM);
+            
+            // Связываем товар с размерами
+            hoodie.setSizes(List.of(sizeS, sizeM));
+            sizeS.setProduct(hoodie);
+            sizeM.setProduct(hoodie);
+            
+            // Сохраняем товар (размеры и цвета сохранятся каскадно)
+            productRepository.save(hoodie);
 
-            // Создаём варианты
-            ProductVariant whiteVariant = new ProductVariant();
-            whiteVariant.setColor("white");
-            whiteVariant.setPrice(BigDecimal.valueOf(999));
-            whiteVariant.setQuantity(10);
-            whiteVariant.setImageUrl("/images/white_1.png");
-            whiteVariant.setHoverImageUrl("/images/white_2.png");
-            whiteVariant.setProduct(product); // связь
-
-            ProductVariant blackVariant = new ProductVariant();
-            blackVariant.setColor("black");
-            blackVariant.setPrice(BigDecimal.valueOf(1199));
-            blackVariant.setQuantity(5);
-            blackVariant.setImageUrl("/images/black_1.png");
-            blackVariant.setHoverImageUrl("/images/black_2.png");
-            blackVariant.setProduct(product);
-
-            // ProductVariant redVariant = new ProductVariant();
-            // redVariant.setColor("red");
-            // redVariant.setPrice(BigDecimal.valueOf(1099));
-            // redVariant.setQuantity(3);
-            // redVariant.setImageUrl("/images/red_1.png");
-            // redVariant.setHoverImageUrl("/images/red_2.png");
-            // redVariant.setProduct(product);
-
-            // Добавляем варианты в товар
-            product.setVariants(List.of(whiteVariant, blackVariant));
-
-            // Сохраняем товар (варианты сохранятся каскадно)
-            productRepository.save(product);
+            // Второй товар для примера
+            Product tshirt = new Product();
+            tshirt.setName("Noera Basic T-Shirt");
+            tshirt.setPrice(BigDecimal.valueOf(599));
+            
+            ProductSize tshirtSize = new ProductSize();
+            tshirtSize.setSizeName("Universal");
+            
+            ProductColor tshirtRed = new ProductColor();
+            tshirtRed.setColorName("red");
+            tshirtRed.setQuantity(10);
+            tshirtRed.setImageUrl("/images/white_1.png");
+            
+            tshirtSize.setColors(List.of(tshirtRed));
+            tshirtRed.setProductSize(tshirtSize);
+            
+            tshirt.setSizes(List.of(tshirtSize));
+            tshirtSize.setProduct(tshirt);
+            
+            productRepository.save(tshirt);
         }
     }
 }
