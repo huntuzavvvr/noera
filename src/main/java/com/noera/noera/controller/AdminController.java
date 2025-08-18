@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -47,7 +48,7 @@ public class AdminController {
     @PostMapping("/products")
     public String addProduct(
         @ModelAttribute Product product,
-        MultipartHttpServletRequest request) {
+        MultipartHttpServletRequest request, RedirectAttributes redirectAttributes) {
         
         request.getParameterMap().forEach((key, value) -> {
             System.out.println("Param: " + key + " = " + Arrays.toString(value));
@@ -57,7 +58,16 @@ public class AdminController {
         request.getFileMap().forEach((key, value) -> {
             System.out.println("File: " + key + " = " + (value != null ? value.getOriginalFilename() : "null"));
         });
-
+        
+        try{
+            if (product.getName() == null || product.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Название товара обязательно");
+        }
+        
+        if (product.getPrice() == null) {
+            throw new IllegalArgumentException("Цена обязательна");
+        }
+        
         List<ProductSize> sizes = new ArrayList<>();
         Map<String, String[]> parameterMap = request.getParameterMap();
         
@@ -83,9 +93,12 @@ public class AdminController {
 
         for (int sizeIndex : sizeIndices) {
             ProductSize size = new ProductSize();
+            
             String sizeName = getLastNonEmptyValue(request.getParameterValues("sizes[" + sizeIndex + "].sizeName"));
             size.setSizeName(sizeName);
-
+            // if (sizeName == null){
+            //     continue;
+            // }
             // Обработка цветов
             Set<Integer> colorIndices = new TreeSet<>();
             for (String paramName : parameterMap.keySet()) {
@@ -101,6 +114,9 @@ public class AdminController {
                 color.setColorName(getLastNonEmptyValue(
                     request.getParameterValues("sizes[" + sizeIndex + "].colors[" + colorIndex + "].colorName")));
 
+                String colorHex = getLastNonEmptyValue(
+                    request.getParameterValues("sizes[" + sizeIndex + "].colors[" + colorIndex + "].colorHex"));
+                color.setColorHex(colorHex);
                 String quantityStr = getLastNonEmptyValue(
                     request.getParameterValues("sizes[" + sizeIndex + "].colors[" + colorIndex + "].quantity"));
                 color.setQuantity(quantityStr != null ? Integer.parseInt(quantityStr) : 0);
@@ -132,6 +148,9 @@ public class AdminController {
 
         product.setSizes(sizes);
         service.save(product);
+        } catch (IllegalArgumentException e) {
+        redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
         return "redirect:/admin/products";
     }
 
@@ -179,37 +198,62 @@ public class AdminController {
         return "redirect:/admin/products";
     }
     @PostMapping("/products/image")
-    public String handleProductUpload(
-            @RequestParam String name,
-            @RequestParam String size,
-            @RequestParam String color,
-            @RequestParam("image") MultipartFile imageFile,
-            @RequestParam(value = "hoverImage", required = false) MultipartFile hoverImageFile) {
+public String handleProductUpload(
+        @RequestParam String name,
+        @RequestParam String size,
+        @RequestParam String color,
+        @RequestParam("image") MultipartFile imageFile,
+        @RequestParam(value = "hoverImage", required = false) MultipartFile hoverImageFile,
+        RedirectAttributes redirectAttributes) {
 
-        // ProductColor color = new ProductColor();
-        System.out.println(name + " " + size + " " + color);
+    try {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Название товара обязательно");
+        }
+        if (size == null || size.trim().isEmpty()) {
+            throw new IllegalArgumentException("Размер обязателен");
+        }
+        if (color == null || color.trim().isEmpty()) {
+            throw new IllegalArgumentException("Цвет обязателен");
+        }
+        if (imageFile == null || imageFile.isEmpty()) {
+            throw new IllegalArgumentException("Основное изображение обязательно");
+        }
+
         Product product = service.findOneByName(name);
-        ProductSize productSize = sizeService.findByProductIdAndSizeName(product.getId(), size);
-        ProductColor productColor = colorService.findBySizeIdAndColorName(productSize.getId(), color);
-        System.out.println(productColor.getId());
-        // productColor.setImageUrl()
-        // service.save(product);
-        if (imageFile != null && !imageFile.isEmpty()) {
-                System.out.println("Found image file: " + imageFile.getOriginalFilename() + ", size: " + imageFile.getSize());
-                String imageUrl = saveImage(imageFile);
-                productColor.setImageUrl(imageUrl);
-            } else {
-                System.out.println("No image file found for size ");
-            }
+        if (product == null) {
+            throw new IllegalArgumentException("Товар не найден");
+        }
 
-            
-            if (hoverImageFile != null && !hoverImageFile.isEmpty()) {
-                String hoverImageUrl = saveImage(hoverImageFile);
-                productColor.setHoverImageUrl(hoverImageUrl);
-            }
+        ProductSize productSize = sizeService.findByProductIdAndSizeName(product.getId(), size);
+        if (productSize == null) {
+            throw new IllegalArgumentException("Размер не найден");
+        }
+
+        ProductColor productColor = colorService.findBySizeIdAndColorName(productSize.getId(), color);
+        if (productColor == null) {
+            throw new IllegalArgumentException("Цвет не найден");
+        }
+
+        String imageUrl = saveImage(imageFile);
+        if (imageUrl == null) {
+            throw new RuntimeException("Не удалось сохранить изображение");
+        }
+        productColor.setImageUrl(imageUrl);
+
+        if (hoverImageFile != null && !hoverImageFile.isEmpty()) {
+            String hoverImageUrl = saveImage(hoverImageFile);
+            productColor.setHoverImageUrl(hoverImageUrl);
+        }
+
         service.save(product);
-        return "redirect:/admin/products"; // страница успешного добавления
+        redirectAttributes.addFlashAttribute("success", "Изображения успешно обновлены");
+    } catch (Exception e) {
+        redirectAttributes.addFlashAttribute("error", "Ошибка: " + e.getMessage());
     }
+
+    return "redirect:/admin/products";
+}
     
    @PostMapping("/products/{productId}/sizes/{sizeId}/delete")
     public String deleteSize(@PathVariable Integer productId, @PathVariable Integer sizeId) {

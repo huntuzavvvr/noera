@@ -18,7 +18,8 @@ public class ProductColor {
     private Integer quantity;
     private String imageUrl;
     private String hoverImageUrl;
-    
+    private String colorHex;
+
     @ManyToOne
     @JoinColumn(name = "size_id")
     private ProductSize productSize;

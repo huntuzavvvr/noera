@@ -115,12 +115,12 @@
                 <h3 class="text-lg font-semibold mb-3">ЦВЕТ</h3>
                 <div class="flex flex-wrap gap-3">
                     <div th:each="color : ${availableColors}" 
-                         class="color-option"
-                         th:style="'background-color: ' + ${color.colorName} + ';'"
-                         th:classappend="${(selectedColor != null && selectedColor.colorName == color.colorName)} ? 'selected' : ''"
-                         th:attr="data-color-id=${color.id}, data-color-name=${color.colorName}"
-                         onclick="selectColor(this)">
-                         <span class="sr-only" th:text="${color.colorName}"></span>
+                        class="color-option"
+                        th:style="'background-color: ' + ${color.colorHex} + ';'"
+                        th:classappend="${(selectedColor != null && selectedColor.id == color.id)} ? 'selected' : ''"
+                        th:attr="data-color-id=${color.id}, data-color-hex=${color.colorHex}, data-color-name=${color.colorName}"
+                        onclick="selectColor(this)">
+                        <span class="sr-only" th:text="${color.colorName}"></span>
                     </div>
                 </div>
             </div>
@@ -151,7 +151,6 @@
         <p>© 2025 NOERA. Все права защищены.</p>
         <div class="mt-4 flex justify-center space-x-6">
             <a href="/deliveryinfo" class="hover:text-white">Доставка</a>
-            <a href="/refund" class="hover:text-white">Возврат</a>
             <a href="/about" class="hover:text-white">О бренде</a>
         </div>
     </div>
@@ -179,12 +178,11 @@
 
     function selectColor(element) {
         const colorId = element.getAttribute('data-color-id');
-        const colorName = element.getAttribute('data-color-name');
-        
-        const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set('color', colorName);
-        currentUrl.searchParams.set('colorId', colorId);
-        window.location.href = currentUrl.toString();
+    const colorHex = element.getAttribute('data-color-hex');
+    
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('colorId', colorId);
+    window.location.href = currentUrl.toString();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
