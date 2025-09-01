@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Orders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .btn-primary { background-color: #2563eb; transition: all 0.2s ease; }
+        .btn-primary:hover { background-color: #1d4ed8; }
+        .btn-danger { background-color: #dc2626; transition: all 0.2s ease; }
+        .btn-danger:hover { background-color: #b91c1c; }
+        .btn-success { background-color: #059669; transition: all 0.2s ease; }
+        .btn-success:hover { background-color: #047857; }
+        .border-red-500 { border-color: #ef4444 !important; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Панель Администратора - Заказы</h1>
+            <div class="flex space-x-4 mt-2">
+                <a href="/admin/products" class="text-blue-600 hover:text-blue-800">Товары</a>
+                <a href="/admin/orders" class="text-blue-600 hover:text-blue-800 font-semibold">Заказы</a>
+            </div>
+        </header>
+
+        <!-- Статистика -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <p class="text-sm text-yellow-700">Ожидают обработки</p>
+                <p class="text-2xl font-bold" th:text="${pendingCount}">0</p>
+            </div>
+            <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <p class="text-sm text-blue-700">Подтвержденные</p>
+                <p class="text-2xl font-bold" th:text="${confirmedCount}">0</p>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                <p class="text-sm text-green-700">Завершенные</p>
+                <p class="text-2xl font-bold" th:text="${completedCount}">0</p>
+            </div>
+            <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                <p class="text-sm text-purple-700">Общая выручка</p>
+                <p class="text-2xl font-bold" th:text="${totalRevenue != null ? totalRevenue + ' UZS' : '0 UZS'}">0 UZS</p>
+            </div>
+        </div>
+
+        <!-- Форма добавления заказа -->
+        <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Добавить новый заказ</h2>
+            
+            <form th:action="@{/admin/orders/create}" method="post" class="space-y-4" id="orderForm">
+                <!-- Информация о клиенте -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Имя клиента *</label>
+                        <input type="text" name="customerName" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Телефон *</label>
+                        <input type="tel" name="phone" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Адрес</label>
+                        <input type="text" name="address"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Примечания</label>
+                    <textarea name="notes" rows="2"
+                             class="w-full px-4 py-2 border border-gray-300 rounded-md"></textarea>
+                </div>
+
+                <!-- Товары в заказе -->
+                <div id="order-items-container">
+                    <h3 class="text-lg font-medium text-gray-800 mb-3">Товары в заказе</h3>
+
+                    <!-- Первый товар -->
+                    <div class="border border-gray-200 p-4 rounded-lg mb-4 order-item">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-medium">Товар 1</h4>
+                            <button type="button" class="text-red-500 hover:text-red-700 remove-item">
+                                Удалить
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Название товара *</label>
+                                <input type="text" name="productNames" required
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Размер *</label>
+                                <input type="text" name="sizes" required
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Цвет *</label>
+                                <input type="text" name="colors" required
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Количество *</label>
+                                <input type="number" name="quantities" required min="1" value="1"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Цена (UZS) *</label>
+                                <input type="number" name="prices" required min="0" step="0.01" value="0"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" id="add-order-item" class="btn-success text-white px-4 py-2 rounded-md">
+                    + Добавить товар
+                </button>
+
+                <div class="pt-4">
+                    <button type="submit" class="btn-primary text-white px-6 py-2 rounded-md font-medium">
+                        Создать заказ
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Шаблон для товара (ВНЕ формы) -->
+        <template id="order-item-template">
+            <div class="border border-gray-200 p-4 rounded-lg mb-4 order-item">
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="font-medium">Товар</h4>
+                    <button type="button" class="text-red-500 hover:text-red-700 remove-item">
+                        Удалить
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Название товара *</label>
+                        <input type="text" name="productNames" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Размер *</label>
+                        <input type="text" name="sizes" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Цвет *</label>
+                        <input type="text" name="colors" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Количество *</label>
+                        <input type="number" name="quantities" required min="1" value="1"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Цена (UZS) *</label>
+                        <input type="number" name="prices" required min="0" step="0.01" value="0"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Список заказов -->
+        <section class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Все заказы</h2>
+            
+            <div class="space-y-4">
+                <div th:each="order : ${orders}" class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="font-semibold text-lg">Заказ #<span th:text="${order.id}"></span></h3>
+                            <p class="text-sm text-gray-600"><strong>Клиент:</strong> <span th:text="${order.customerName}"></span></p>
+                            <p class="text-sm text-gray-600"><strong>Телефон:</strong> <span th:text="${order.phone}"></span></p>
+                            <p class="text-sm text-gray-600"><strong>Адрес:</strong> <span th:text="${order.address ?: 'Не указан'}"></span></p>
+                            <p class="text-sm text-gray-600"><strong>Дата:</strong> <span th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy HH:mm')}"></span></p>
+                        </div>
+                       <!-- <span th:class="${'px-3 py-1 rounded-full text-sm font-medium ' + 
+               (order.status == 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 
+                order.status == 'CONFIRMED' ? 'bg-blue-100 text-blue-800' : 
+                order.status == 'COMPLETED' ? 'bg-green-100 text-green-800' : 
+                order.status == 'CANCELLED' ? 'bg-red-100 text-red-800' : '')}" 
+      th:text="${order.status.displayName}"></span> -->
+                    </div>
+
+                    <!-- Товары в заказе -->
+                    <div class="mb-3">
+                        <h4 class="font-medium mb-2">Товары:</h4>
+                        <div th:each="item, stat : ${order.items}" class="ml-4 mb-2">
+                            <p class="text-sm">
+                                <span th:text="${item.productName}"></span> -
+                                Размер: <span th:text="${item.size}"></span> -
+                                Цвет: <span th:text="${item.color}"></span> -
+                                Кол-во: <span th:text="${item.quantity}"></span> -
+                                Цена: <span th:text="${item.price} + ' UZS'"></span>
+                            </p>
+                        </div>
+                        <p class="font-semibold">Общая сумма: <span th:text="${order.totalAmount} + ' UZS'"></span></p>
+                    </div>
+
+                    <!-- Примечания -->
+                    <div th:if="${order.notes}" class="mb-3">
+                        <p class="text-sm"><strong>Примечания клиента:</strong> <span th:text="${order.notes}"></span></p>
+                    </div>
+
+                    <!-- Управление заказом -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- <form th:action="@{'/admin/orders/' + ${order.id} + '/update-status'}" method="post" class="space-y-2">
+                            <div class="flex flex-wrap gap-2 items-center">
+                                <select name="status" class="px-3 py-2 border border-gray-300 rounded-md">
+                                    <option th:each="status : ${T(com.yourpackage.model.Order.OrderStatus).values()}" 
+                                            th:value="${status}" 
+                                            th:text="${status.displayName}"
+                                            th:selected="${order.status == status}"></option>
+                                </select>
+                                <input type="text" name="managerNotes" placeholder="Заметки менеджера" 
+                                       th:value="${order.managerNotes}" 
+                                       class="px-3 py-2 border border-gray-300 rounded-md">
+                                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                                    Обновить
+                                </button>
+                            </div>
+                        </form> -->
+                        
+                        <form th:action="@{'/admin/orders/' + ${order.id} + '/delete'}" method="post">
+                            <button type="submit" class="btn-danger text-white px-4 py-2 rounded-md"
+                                    onclick="return confirm('Удалить этот заказ?')">
+                                Удалить заказ
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const addItemBtn = document.getElementById('add-order-item');
+            const itemsContainer = document.getElementById('order-items-container');
+            const itemTemplate = document.getElementById('order-item-template');
+            const orderForm = document.getElementById('orderForm');
+            
+            let itemCount = document.querySelectorAll('.order-item').length;
+            
+            // Обработчики для удаления товаров
+            document.querySelectorAll('.remove-item').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const itemSection = this.closest('.order-item');
+                    if (document.querySelectorAll('.order-item').length > 1) {
+                        itemSection.remove();
+                        reindexItems();
+                    } else {
+                        alert('Заказ должен содержать хотя бы один товар');
+                    }
+                });
+            });
+            
+            // Добавление нового товара
+            addItemBtn.addEventListener('click', function() {
+                const newItem = itemTemplate.content.cloneNode(true);
+                const itemElement = newItem.querySelector('.order-item');
+                
+                // Обновляем заголовок
+                itemElement.querySelector('h4').textContent = `Товар ${itemCount + 1}`;
+                
+                // Добавляем обработчик удаления
+                itemElement.querySelector('.remove-item').addEventListener('click', function() {
+                    const itemSection = this.closest('.order-item');
+                    if (document.querySelectorAll('.order-item').length > 1) {
+                        itemSection.remove();
+                        reindexItems();
+                    } else {
+                        alert('Заказ должен содержать хотя бы один товар');
+                    }
+                });
+                
+                itemsContainer.appendChild(itemElement);
+                itemCount++;
+                reindexItems();
+            });
+            
+            // Переиндексация товаров
+            function reindexItems() {
+                const items = document.querySelectorAll('.order-item');
+                items.forEach((item, index) => {
+                    item.querySelector('h4').textContent = `Товар ${index + 1}`;
+                });
+                itemCount = items.length;
+            }
+            
+            // Валидация формы перед отправкой
+            orderForm.addEventListener('submit', function(e) {
+                let isValid = true;
+                let errorMessage = '';
+                
+                // Проверка основных полей
+                const customerName = document.querySelector('input[name="customerName"]');
+                const phone = document.querySelector('input[name="phone"]');
+                
+                if (!customerName.value.trim()) {
+                    isValid = false;
+                    errorMessage += '• Имя клиента обязательно\n';
+                    customerName.classList.add('border-red-500');
+                } else {
+                    customerName.classList.remove('border-red-500');
+                }
+                
+                if (!phone.value.trim()) {
+                    isValid = false;
+                    errorMessage += '• Телефон обязателен\n';
+                    phone.classList.add('border-red-500');
+                } else {
+                    phone.classList.remove('border-red-500');
+                }
+                
+                // Проверка товаров
+                const productNames = document.querySelectorAll('input[name="productNames"]');
+                const quantities = document.querySelectorAll('input[name="quantities"]');
+                const prices = document.querySelectorAll('input[name="prices"]');
+                
+                productNames.forEach((input, index) => {
+                    if (!input.value.trim()) {
+                        isValid = false;
+                        errorMessage += `• Название товара ${index + 1} обязательно\n`;
+                        input.classList.add('border-red-500');
+                    } else {
+                        input.classList.remove('border-red-500');
+                    }
+                });
+                
+                quantities.forEach((input, index) => {
+                    if (!input.value || input.value <= 0) {
+                        isValid = false;
+                        errorMessage += `• Количество товара ${index + 1} должно быть больше 0\n`;
+                        input.classList.add('border-red-500');
+                    } else {
+                        input.classList.remove('border-red-500');
+                    }
+                });
+                
+                prices.forEach((input, index) => {
+                    if (!input.value || input.value < 0) {
+                        isValid = false;
+                        errorMessage += `• Цена товара ${index + 1} должна быть положительной\n`;
+                        input.classList.add('border-red-500');
+                    } else {
+                        input.classList.remove('border-red-500');
+                    }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Пожалуйста, исправьте ошибки:\n' + errorMessage);
+                    
+                    // Прокрутка к первой ошибке
+                    const firstError = document.querySelector('.border-red-500');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstError.focus();
+                    }
+                }
+            });
+            
+            // Убираем красную обводку при вводе
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', function() {
+                    this.classList.remove('border-red-500');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

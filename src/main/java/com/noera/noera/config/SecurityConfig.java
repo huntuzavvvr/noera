@@ -27,7 +27,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth.requestMatchers("/admin/**")
         .hasRole("ADMIN").anyRequest().permitAll())
         .formLogin(form -> form.defaultSuccessUrl("/admin/products", true).permitAll())
+        
         .logout(Customizer.withDefaults());
-        return http.build();
+        return http.csrf().disable().build();
     }
 }

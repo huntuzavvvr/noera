@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOERA | Админ — Редактирование товара</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+<header class="bg-black text-white px-6 py-4 flex items-center justify-between">
+    <h1 class="text-2xl font-bold">NOERA | Админ</h1>
+    <a href="/admin/products" class="hover:underline">Назад к товарам</a>
+</header>
+
+<main class="container mx-auto px-6 py-10">
+    <h2 class="text-3xl font-bold mb-8">Редактирование товара</h2>
+
+    <!-- Форма редактирования товара -->
+    <form th:action="@{/admin/products/save}" method="post" enctype="multipart/form-data"
+          class="space-y-8 bg-white shadow p-6 rounded-lg">
+
+        <!-- Основная информация -->
+        <div>
+            <label class="block text-sm font-semibold mb-2">Название товара</label>
+            <input type="text" th:value="${product.name}" name="name"
+                   class="w-full border rounded p-2">
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold mb-2">Цена (UZS)</label>
+            <input type="number" th:value="${product.price}" name="price"
+                   class="w-full border rounded p-2">
+        </div>
+
+        <!-- Размеры -->
+        <div>
+            <label class="block text-sm font-semibold mb-2">Размеры</label>
+            <div class="flex flex-wrap gap-3">
+                <input type="text" th:each="size : ${product.sizes}"
+                       th:value="${size.sizeName}" name="sizes"
+                       class="border rounded p-2 w-24">
+            </div>
+        </div>
+
+        <!-- Цвета -->
+        <div>
+            <h3 class="text-xl font-bold mb-4">Цвета</h3>
+            <div class="space-y-8">
+                <div th:each="color, iterStat : ${availableColors}" 
+                     class="p-4 border rounded-lg bg-gray-50">
+
+                    <div class="flex items-center gap-4 mb-4">
+                        <input type="hidden" th:value="${color.id}" th:name="|colors[${iterStat.index}].id|">
+
+                        <!-- Название и HEX цвета -->
+                        <div class="flex-1">
+                            <label class="block text-sm font-semibold mb-1">Название цвета</label>
+                            <input type="text" th:value="${color.colorName}" 
+                                   th:name="|colors[${iterStat.index}].colorName|"
+                                   class="w-full border rounded p-2">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">HEX</label>
+                            <input type="color" th:value="${color.colorHex}" 
+                                   th:name="|colors[${iterStat.index}].colorHex|"
+                                   class="w-16 h-10 border rounded">
+                        </div>
+                    </div>
+
+                    <!-- Изображения -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Основное изображение -->
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Основное фото</label>
+                            <div class="flex items-center gap-4">
+                                <img th:if="${color.imageUrl != null}"
+                                     th:src="@{${color.imageUrl}}"
+                                     class="w-24 h-24 object-cover rounded border">
+                                <input type="file" th:name="|colors[${iterStat.index}].imageFile|"
+                                       accept="image/*" class="w-full">
+                            </div>
+                        </div>
+
+                        <!-- Hover-изображение -->
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Hover фото (опционально)</label>
+                            <div class="flex items-center gap-4">
+                                <img th:if="${color.hoverImageUrl != null}"
+                                     th:src="@{${color.hoverImageUrl}}"
+                                     class="w-24 h-24 object-cover rounded border">
+                                <input type="file" th:name="|colors[${iterStat.index}].hoverImageFile|"
+                                       accept="image/*" class="w-full">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопка сохранить -->
+        <div class="text-right">
+            <button type="submit" 
+                    class="px-6 py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800">
+                Сохранить
+            </button>
+        </div>
+    </form>
+</main>
+
+</body>
+</html>

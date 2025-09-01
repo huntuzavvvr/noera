@@ -39,6 +39,7 @@ public class DataInitializer implements CommandLineRunner {
         Product hoodie = new Product();
         hoodie.setName("Noera Base Hoodie");
         hoodie.setPrice(BigDecimal.valueOf(299000)); // Цена в UZS
+        hoodie.setDescription("Cool hoodie");
 
         // Размер S
         ProductSize sizeS = new ProductSize();
@@ -82,7 +83,8 @@ public class DataInitializer implements CommandLineRunner {
         Product tshirt = new Product();
         tshirt.setName("Noera Basic T-Shirt");
         tshirt.setPrice(BigDecimal.valueOf(199000)); // Цена в UZS
-        
+        tshirt.setDescription("Cool tshirt");
+
         ProductSize tshirtSize = new ProductSize();
         tshirtSize.setSizeName("Universal");
         

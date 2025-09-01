@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Controller
@@ -197,8 +198,9 @@ public class AdminController {
         service.delete(id);
         return "redirect:/admin/products";
     }
+
     @PostMapping("/products/image")
-public String handleProductUpload(
+    public String handleProductUpload(
         @RequestParam String name,
         @RequestParam String size,
         @RequestParam String color,
@@ -266,4 +268,81 @@ public String handleProductUpload(
         colorService.deleteColor(colorId);
         return "redirect:/admin/products";
     }
+
+    @GetMapping("/products/{id}")
+    public String getProductDescription(@PathVariable Integer id, 
+                                      @RequestParam(required = false) String sizeName,
+                                      @RequestParam(required = false) Integer colorId,
+                                      Model model) {
+        System.out.println(sizeName);
+        Product product = service.findById(id);
+        if (product == null) {
+            return "redirect:/";
+        }
+
+        // Получаем все размеры товара
+        List<ProductSize> sizes = product.getSizes();
+        
+        // Находим выбранный размер (или первый доступный)
+        ProductSize selectedSize = sizes.stream()
+                .filter(s -> sizeName == null || sizeName.equalsIgnoreCase(s.getSizeName()))
+                .findFirst()
+                .orElse(sizes.isEmpty() ? null : sizes.get(0));
+        
+        // Получаем все цвета для выбранного размера
+        List<ProductColor> colors = selectedSize != null ? selectedSize.getColors() : Collections.emptyList();
+        
+        // Находим выбранный цвет (или первый доступный)
+        ProductColor selectedColor = colors.stream()
+                .filter(c -> colorId == null || colorId.equals(c.getId()))
+                .findFirst()
+                .orElse(colors.isEmpty() ? null : colors.get(0));
+
+        // Получаем все уникальные цвета для всех размеров (для галереи)
+        List<String> allProductImages = product.getSizes().stream()
+                .flatMap(size -> size.getColors().stream())
+                .map(ProductColor::getImageUrl)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+
+        // Добавляем hover-изображения если они есть
+        product.getSizes().stream()
+                .flatMap(size -> size.getColors().stream())
+                .map(ProductColor::getHoverImageUrl)
+                .filter(Objects::nonNull)
+                .forEach(allProductImages::add);
+        System.out.println(selectedSize.getSizeName());
+        System.out.println(selectedColor.getColorName());
+        // System.out.println(selectedColor.getColorName());
+        model.addAttribute("product", product);
+        model.addAttribute("selectedSize", selectedSize);
+        model.addAttribute("selectedColor", selectedColor);
+        model.addAttribute("availableColors", colors);
+        model.addAttribute("allProductImages", allProductImages);
+
+        return "ad_description";
+    }
+
+    // @PostMapping("/products/save")
+    // public String saveProduct(@RequestParam String name,
+    //     @RequestParam String size,
+    //     @RequestParam String price,
+    //     @RequestParam("image") MultipartFile imageFile,
+    //     @RequestParam(value = "hoverImage", required = false) MultipartFile hoverImageFile,
+    //     RedirectAttributes redirectAttributes) throws IOException {
+    //     for (ProductColor color : product.getColors()) {
+    //         if (color.getImageFile() != null && !color.getImageFile().isEmpty()) {
+    //             String url = fileStorageService.saveFile(color.getImageFile());
+    //             color.setImageUrl(url);
+    //         }
+    //         if (color.getHoverImageFile() != null && !color.getHoverImageFile().isEmpty()) {
+    //             String url = fileStorageService.saveFile(color.getHoverImageFile());
+    //             color.setHoverImageUrl(url);
+    //         }
+    //     }
+
+    //     productService.save(product);
+    //     return "redirect:/admin/products";
+    // }
 }

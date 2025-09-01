@@ -20,4 +20,8 @@ public class ColorService {
     public void deleteColor(Integer colorId) {
         repository.deleteById(colorId);
     }
+
+    public ProductColor findById(Integer colorId) {
+        return repository.findById(colorId).orElse(null);
+    }
 }

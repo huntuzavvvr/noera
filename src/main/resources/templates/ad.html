@@ -60,6 +60,7 @@
             <form th:action="@{/logout}" method="post">
                 <button type="submit" class="text-blue-600 hover:text-blue-800">Выйти</button>
             </form>
+            <a href="/admin/orders">Заказы</a>
         </header>
 
         <!-- Add Product Form -->
@@ -280,7 +281,7 @@
             </form>
         </section>
 
-        <form th:action="@{/admin/products/image}" method="post" class="space-y-4" enctype="multipart/form-data" novalidate>
+        <!-- <form th:action="@{/admin/products/image}" method="post" class="space-y-4" enctype="multipart/form-data" novalidate>
                 <div>
                     <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Название товара</label>
                     <input type="text" name="name" id="name" required 
@@ -310,7 +311,7 @@
                         Сохранить фото
                     </button>
                 </div>
-            </form>
+            </form> -->
         
         <!-- Product List -->
         <section class="bg-white rounded-lg shadow-md p-6">
@@ -332,7 +333,7 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 <tr th:each="product : ${products}" class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${product.id}">1</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${productStat.count}">1</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${product.name}">Name</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${product.price} + ' UZS'">Price</td>
                     <td class="px-6 py-4">
@@ -381,6 +382,10 @@
                                 Удалить товар
                             </button>
                         </form>
+                        <a th:href="@{/admin/products/{id}(id=${product.id})}" 
+                        class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                            Перейти к товару
+                        </a>
                     </td>
                 </tr>
             </tbody>
@@ -544,6 +549,28 @@
                 return Array.from(sizes).indexOf(sizeSection);
             }
             
+            // Функция для переиндексации таблицы товаров
+            function reindexProductsTable() {
+                const tableRows = document.querySelectorAll('tbody tr');
+                tableRows.forEach((row, index) => {
+                    // Обновляем номер в первом столбце (ID)
+                    const idCell = row.querySelector('td:first-child');
+                    if (idCell) {
+                        idCell.textContent = index + 1;
+                    }
+                    
+                    // Обновляем все формы удаления в строке
+                    row.querySelectorAll('form').forEach(form => {
+                        const action = form.getAttribute('action');
+                        if (action) {
+                            // Обновляем productId в URL
+                            const newAction = action.replace(/\/products\/\d+/, `/products/${index + 1}`);
+                            form.setAttribute('action', newAction);
+                        }
+                    });
+                });
+            }
+
             // Добавление нового размера
             addSizeBtn.addEventListener('click', function() {
                 const newSize = sizeTemplate.cloneNode(true);

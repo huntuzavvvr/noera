@@ -123,27 +123,7 @@
                         <span class="sr-only" th:text="${color.colorName}"></span>
                     </div>
                 </div>
-
-                <div class="mt-4">
-        <button id="uploadImagesBtn" 
-            class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-500 text-white">
-            Загрузить фото для выбранного цвета
-        </button>
-    </div>
-
-    <!-- Форма загрузки -->
-    <form id="uploadImagesForm" class="hidden mt-3 space-y-2" enctype="multipart/form-data">
-        <input type="file" id="mainImageInput" name="mainImage" accept="image/*" class="block w-full text-sm text-gray-300"/>
-        <input type="file" id="hoverImageInput" name="hoverImage" accept="image/*" class="block w-full text-sm text-gray-300"/>
-        <button type="submit" class="bg-green-600 px-4 py-2 rounded hover:bg-green-500 text-white">
-            Сохранить
-        </button>
-        <button type="button" id="cancelUploadBtn" class="bg-red-600 px-4 py-2 rounded hover:bg-red-500 text-white">
-            Отмена
-        </button>
-    </form>
             </div>
-            
 
             <!-- Add to Cart Button -->
             <button id="orderButton"
@@ -159,7 +139,6 @@
         <button id="editDescriptionBtn" class="ml-4 text-sm text-blue-400 hover:text-blue-600">
             Редактировать
         </button>
-        
     </h3>
     <!-- Отображение описания -->
     <p id="descriptionText" class="text-gray-400 whitespace-pre-wrap" th:text="${product.description}"></p>
@@ -201,142 +180,26 @@
     //     window.location.href = currentUrl.toString();
     // }
 
-    async function selectSize(element) {
+    function selectSize(element) {
     const sizeName = element.getAttribute('data-size');
-
-    // снимаем выделение со всех размеров
-    document.querySelectorAll('.size-option').forEach(el => el.classList.remove('selected'));
-    element.classList.add('selected');
-
-    // Делаем запрос на сервер для получения доступных цветов
-    const response = await fetch(`/products/${productId}/sizes/${sizeName}`);
-    const data = await response.json();
-
-    // Обновляем блок с цветами
-    const colorsContainer = document.querySelector('.flex.flex-wrap.gap-3');
-    colorsContainer.innerHTML = '';
-
-    let firstColorElement = null;
-
-    data.colors.forEach((color, index) => {
-        const div = document.createElement('div');
-        div.className = "color-option";
-        div.style.backgroundColor = color.colorHex;
-        div.setAttribute('data-color-id', color.id);
-        div.setAttribute('data-color-hex', color.colorHex);
-        div.setAttribute('data-color-name', color.colorName);
-        div.onclick = () => selectColor(div);
-
-        // если это первый цвет → выделяем
-        if (index === 0) {
-            div.classList.add("selected");
-            firstColorElement = div;
-        }
-
-        colorsContainer.appendChild(div);
-    });
-
-    // Обновляем цену и наличие
-    document.getElementById('price').textContent = data.price + " UZS";
-    updateStockStatus(data.quantity);
-
-    // Автовыбор первого доступного цвета
-    if (firstColorElement) {
-        await selectColor(firstColorElement);
-    }
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('sizeName', sizeName); // Используем sizeName вместо size
+    window.location.href = currentUrl.toString();
 }
 
-    async function selectColor(element) {
+    function selectColor(element) {
         const colorId = element.getAttribute('data-color-id');
-
-        // снимаем выделение со всех цветов
-        document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
-        element.classList.add('selected');
-
-        // Делаем запрос на сервер для получения инфо по цвету
-        const response = await fetch(`/products/${productId}/colors/${colorId}`);
-        const data = await response.json();
-
-        // Обновляем главное фото
-        document.getElementById('mainProductImage').src = data.imageUrl;
-
-        // Обновляем галерею
-        const gallery = document.getElementById('productGallery');
-        gallery.innerHTML = '';
-        const img1 = document.createElement('img');
-        img1.src = data.imageUrl;
-        img1.className = "thumbnail active rounded";
-        img1.onclick = () => changeMainImage(img1, img1.src);
-        gallery.appendChild(img1);
-
-        if (data.hoverImageUrl) {
-            const img2 = document.createElement('img');
-            img2.src = data.hoverImageUrl;
-            img2.className = "thumbnail rounded";
-            img2.onclick = () => changeMainImage(img2, img2.src);
-            gallery.appendChild(img2);
-        }
-
-        // Обновляем цену и наличие
-        document.getElementById('price').textContent = data.price + " UZS";
-        updateStockStatus(data.quantity);
-    }
-    function updateStockStatus(quantity) {
-        const availableEl = document.querySelector(".text-green-500");
-        const notAvailableEl = document.querySelector(".text-red-500");
-
-        if (quantity > 0) {
-            if (availableEl) availableEl.classList.remove("hidden");
-            if (notAvailableEl) notAvailableEl.classList.add("hidden");
-            document.getElementById("orderButton").disabled = false;
-        } else {
-            if (availableEl) availableEl.classList.add("hidden");
-            if (notAvailableEl) notAvailableEl.classList.remove("hidden");
-            document.getElementById("orderButton").disabled = true;
-        }
+    const colorHex = element.getAttribute('data-color-hex');
+    
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('colorId', colorId);
+    window.location.href = currentUrl.toString();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
         const orderButton = document.getElementById('orderButton');
         if (!orderButton) return;
-        const uploadBtn = document.getElementById('uploadImagesBtn');
-    const form = document.getElementById('uploadImagesForm');
-    const cancelBtn = document.getElementById('cancelUploadBtn');
 
-    uploadBtn.addEventListener('click', () => {
-        form.classList.toggle('hidden');
-    });
-
-    cancelBtn.addEventListener('click', () => {
-        form.classList.add('hidden');
-    });
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const selectedColor = document.querySelector('.color-option.selected');
-        if (!selectedColor) {
-            alert("Сначала выберите цвет!");
-            return;
-        }
-
-        const colorId = selectedColor.getAttribute('data-color-id');
-        const formData = new FormData();
-        formData.append("mainImage", document.getElementById('mainImageInput').files[0]);
-        formData.append("hoverImage", document.getElementById('hoverImageInput').files[0]);
-
-        const response = await fetch(`/products/${productId}/colors/${colorId}/images`, {
-            method: "POST",
-            body: formData
-        });
-
-        const result = await response.json();
-        if (result.success) {
-            alert("Фотографии обновлены!");
-            location.reload();
-        } else {
-            alert("Ошибка при загрузке");
-        }
-    });
         orderButton.addEventListener('click', function() {
             const productName = document.querySelector('.section-title').textContent;
             const price = document.getElementById('price').textContent;

@@ -20,6 +20,9 @@ public class ShopService {
     }
 
     public List<Product> findAll(){
+        for (var elem : repository.findAll()){
+            System.out.println(elem.getName());
+        }
         return repository.findAll();
     }
 

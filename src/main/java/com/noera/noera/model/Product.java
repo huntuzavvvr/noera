@@ -21,6 +21,7 @@ public class Product {
     private Integer id;
     private String name;
     private BigDecimal price; // Фиксированная цена для всех вариантов
+    private String description;
     
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductSize> sizes = new ArrayList<>();
