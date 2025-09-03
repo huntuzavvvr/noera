@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOERA</title>
+    <title>AZZLEN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -145,7 +145,7 @@
                 <a href="/">AZZLEN</a>
             </div>
             <div class="flex space-x-4">
-                <a href="https://t.me/azzlenprod" class="text-white hover:text-gray-400 transition-colors text-xl" aria-label="Telegram">
+                <a href="https://t.me/noeraprod" class="text-white hover:text-gray-400 transition-colors text-xl" aria-label="Telegram">
                     <i class="fab fa-telegram"></i>
                 </a>
             </div>
@@ -185,7 +185,7 @@
             <div class="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
                 <!-- Product Cards -->
                 <div class="product-card group" th:each="product : ${products}">
-                    <a th:href="@{'/products/' + ${product.id}}" class="block">
+                    <a th:href="@{'/admin/shop/products/' + ${product.id}}" class="block">
                         <div class="relative overflow-hidden mb-4 image-container" style="aspect-ratio: 1/1;">
                             <!-- Используем первое изображение из первого размера и цвета -->
                             <img th:if="${not #lists.isEmpty(product.sizes) and not #lists.isEmpty(product.sizes[0].colors)}"
@@ -232,7 +232,7 @@
                 <h3 class="text-white font-semibold mb-4 uppercase tracking-wide">Контакты</h3>
                 <p class="mb-6">Telegram: @azzlenprod</p>
                 <div class="flex space-x-6 text-2xl">
-                    <a href="https://t.me/azzlenprod" class="hover:text-white transition-colors" aria-label="Telegram">
+                    <a href="https://t.me/noeraprod" class="hover:text-white transition-colors" aria-label="Telegram">
                         <i class="fab fa-telegram"></i>
                     </a>
                 </div>

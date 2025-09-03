@@ -3,111 +3,400 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOERA | Админ — Редактирование товара</title>
+    <title th:text="${product.name} + ' | NOERA'">AZZLEN - Выбор товара</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 text-gray-900">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700&display=swap');
+        body { font-family: 'Montserrat', sans-serif; background-color: #000; color: #fff; overflow-x: hidden; }
+        .logo-font { font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; }
+        .section-title { font-family: 'Bebas Neue', sans-serif; letter-spacing: 3px; }
 
-<header class="bg-black text-white px-6 py-4 flex items-center justify-between">
-    <h1 class="text-2xl font-bold">NOERA | Админ</h1>
-    <a href="/admin/products" class="hover:underline">Назад к товарам</a>
+        .color-option {
+            width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+            border: 2px solid #333; transition: all 0.3s ease;
+        }
+        .color-option.selected { border-color: white; transform: scale(1.1); }
+        
+        .size-option {
+            display: flex; align-items: center; justify-content: center;
+            width: 50px; height: 50px; border: 1px solid #333;
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .size-option.selected { border-color: white; background-color: rgba(255,255,255,0.1); }
+        .size-option.unavailable { 
+            color: #555; border-color: #333; 
+            text-decoration: line-through; cursor: not-allowed; 
+        }
+
+        .product-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
+        .thumbnail { cursor: pointer; opacity: 0.7; transition: opacity 0.3s ease; }
+        .thumbnail:hover, .thumbnail.active { opacity: 1; }
+        .main-image { aspect-ratio: 1/1; object-fit: cover; }
+    </style>
+</head>
+<body class="antialiased">
+
+<!-- Header -->
+<header class="sticky top-0 z-50 border-b border-gray-800 bg-black bg-opacity-90">
+    <div class="container mx-auto px-4 py-4 flex items-center">
+        <a href="/" class="flex items-center">
+            <span class="logo-font text-3xl text-white">AZZLEN</span>
+        </a>
+        <div class="ml-auto flex space-x-4">
+            <a href="https://t.me/noeraprod" class="text-white hover:text-gray-400 text-xl">
+                <i class="fab fa-telegram"></i>
+            </a>
+        </div>
+    </div>
 </header>
 
-<main class="container mx-auto px-6 py-10">
-    <h2 class="text-3xl font-bold mb-8">Редактирование товара</h2>
-
-    <!-- Форма редактирования товара -->
-    <form th:action="@{/admin/products/save}" method="post" enctype="multipart/form-data"
-          class="space-y-8 bg-white shadow p-6 rounded-lg">
-
-        <!-- Основная информация -->
+<!-- Product Section -->
+<section class="container mx-auto px-4 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <!-- Product Images -->
         <div>
-            <label class="block text-sm font-semibold mb-2">Название товара</label>
-            <input type="text" th:value="${product.name}" name="name"
-                   class="w-full border rounded p-2">
-        </div>
-
-        <div>
-            <label class="block text-sm font-semibold mb-2">Цена (UZS)</label>
-            <input type="number" th:value="${product.price}" name="price"
-                   class="w-full border rounded p-2">
-        </div>
-
-        <!-- Размеры -->
-        <div>
-            <label class="block text-sm font-semibold mb-2">Размеры</label>
-            <div class="flex flex-wrap gap-3">
-                <input type="text" th:each="size : ${product.sizes}"
-                       th:value="${size.sizeName}" name="sizes"
-                       class="border rounded p-2 w-24">
+            <div class="bg-gray-900 rounded-lg overflow-hidden">
+                <img id="mainProductImage"
+                     th:src="@{${selectedColor != null ? selectedColor.imageUrl : product.sizes[0].colors[0].imageUrl}}" 
+                     th:alt="${product.name}" 
+                     class="w-full main-image">
+            </div>
+            <div id="productGallery" class="product-gallery">
+                <!-- Основное изображение -->
+                <img th:if="${selectedColor != null}"
+                    th:src="@{${selectedColor.imageUrl}}" 
+                    class="thumbnail active rounded" 
+                    onclick="changeMainImage(this, this.src)">
+                
+                <!-- Hover изображение (если есть) -->
+                <img th:if="${selectedColor != null and selectedColor.hoverImageUrl != null}"
+                    th:src="@{${selectedColor.hoverImageUrl}}" 
+                    class="thumbnail rounded" 
+                    onclick="changeMainImage(this, this.src)">
             </div>
         </div>
 
-        <!-- Цвета -->
+        <!-- Product Info -->
         <div>
-            <h3 class="text-xl font-bold mb-4">Цвета</h3>
-            <div class="space-y-8">
-                <div th:each="color, iterStat : ${availableColors}" 
-                     class="p-4 border rounded-lg bg-gray-50">
+            <h1 class="section-title text-4xl mb-2" th:text="${product.name}"></h1>
 
-                    <div class="flex items-center gap-4 mb-4">
-                        <input type="hidden" th:value="${color.id}" th:name="|colors[${iterStat.index}].id|">
+            <div class="flex items-center mb-6">
+                <span class="text-2xl font-bold mr-4">
+                    <span id="price" th:text="${#numbers.formatDecimal(product.price, 0, 0)} + ' UZS'"></span>
+                </span>
+                <span class="text-green-500 text-sm" 
+                      th:if="${(selectedColor != null ? selectedColor.quantity : product.sizes[0].colors[0].quantity) > 0}">
+                    В наличии
+                </span>
+                <span class="text-red-500 text-sm" 
+                      th:unless="${(selectedColor != null ? selectedColor.quantity : product.sizes[0].colors[0].quantity) > 0}">
+                    Нет в наличии
+                </span>
+            </div>
 
-                        <!-- Название и HEX цвета -->
-                        <div class="flex-1">
-                            <label class="block text-sm font-semibold mb-1">Название цвета</label>
-                            <input type="text" th:value="${color.colorName}" 
-                                   th:name="|colors[${iterStat.index}].colorName|"
-                                   class="w-full border rounded p-2">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold mb-1">HEX</label>
-                            <input type="color" th:value="${color.colorHex}" 
-                                   th:name="|colors[${iterStat.index}].colorHex|"
-                                   class="w-16 h-10 border rounded">
-                        </div>
-                    </div>
-
-                    <!-- Изображения -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Основное изображение -->
-                        <div>
-                            <label class="block text-sm font-semibold mb-2">Основное фото</label>
-                            <div class="flex items-center gap-4">
-                                <img th:if="${color.imageUrl != null}"
-                                     th:src="@{${color.imageUrl}}"
-                                     class="w-24 h-24 object-cover rounded border">
-                                <input type="file" th:name="|colors[${iterStat.index}].imageFile|"
-                                       accept="image/*" class="w-full">
-                            </div>
-                        </div>
-
-                        <!-- Hover-изображение -->
-                        <div>
-                            <label class="block text-sm font-semibold mb-2">Hover фото (опционально)</label>
-                            <div class="flex items-center gap-4">
-                                <img th:if="${color.hoverImageUrl != null}"
-                                     th:src="@{${color.hoverImageUrl}}"
-                                     class="w-24 h-24 object-cover rounded border">
-                                <input type="file" th:name="|colors[${iterStat.index}].hoverImageFile|"
-                                       accept="image/*" class="w-full">
-                            </div>
-                        </div>
-                    </div>
+            <!-- Size Selection -->
+            <div class="mb-8" th:if="${not #lists.isEmpty(product.sizes)}">
+                <h3 class="text-lg font-semibold mb-3">РАЗМЕР</h3>
+                <div class="grid grid-cols-5 gap-3 max-w-md">
+                    <div th:each="size : ${product.sizes}"
+     class="size-option"
+     th:classappend="${(selectedSize != null && selectedSize.sizeName == size.sizeName)} ? 'selected' : ''"
+     th:text="${size.sizeName}"
+     th:data-size="${size.sizeName}"
+     onclick="selectSize(this)">
+</div>
                 </div>
             </div>
-        </div>
 
-        <!-- Кнопка сохранить -->
-        <div class="text-right">
-            <button type="submit" 
-                    class="px-6 py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800">
-                Сохранить
-            </button>
-        </div>
+            <!-- Color Selection -->
+            <div class="mb-8" th:if="${not #lists.isEmpty(availableColors)}">
+                <h3 class="text-lg font-semibold mb-3">ЦВЕТ</h3>
+                <div class="flex flex-wrap gap-3">
+                    <div th:each="color : ${availableColors}" 
+                        class="color-option"
+                        th:style="'background-color: ' + ${color.colorHex} + ';'"
+                        th:classappend="${(selectedColor != null && selectedColor.id == color.id)} ? 'selected' : ''"
+                        th:attr="data-color-id=${color.id}, data-color-hex=${color.colorHex}, data-color-name=${color.colorName}"
+                        onclick="selectColor(this)">
+                        <span class="sr-only" th:text="${color.colorName}"></span>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+        <button id="uploadImagesBtn" 
+            class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-500 text-white">
+            Загрузить фото для выбранного цвета
+        </button>
+    </div>
+
+    <!-- Форма загрузки -->
+    <form id="uploadImagesForm" class="hidden mt-3 space-y-2" enctype="multipart/form-data">
+        <input type="file" id="mainImageInput" name="mainImage" accept="image/*" class="block w-full text-sm text-gray-300"/>
+        <input type="file" id="hoverImageInput" name="hoverImage" accept="image/*" class="block w-full text-sm text-gray-300"/>
+        <button type="submit" class="bg-green-600 px-4 py-2 rounded hover:bg-green-500 text-white">
+            Сохранить
+        </button>
+        <button type="button" id="cancelUploadBtn" class="bg-red-600 px-4 py-2 rounded hover:bg-red-500 text-white">
+            Отмена
+        </button>
     </form>
-</main>
+            </div>
+            
+
+            <!-- Add to Cart Button -->
+            <button id="orderButton"
+                class="w-full bg-white text-black py-4 uppercase font-bold tracking-wider hover:bg-gray-200 transition-colors mb-6"
+                th:disabled="${(selectedColor != null ? selectedColor.quantity : product.sizes[0].colors[0].quantity) <= 0}">
+                ЗАКАЗАТЬ
+            </button>
+
+            <!-- Product Details -->
+            <div class="border-t border-gray-800 pt-6 relative">
+    <h3 class="text-lg font-semibold mb-3 flex items-center">
+        ОПИСАНИЕ
+        <button id="editDescriptionBtn" class="ml-4 text-sm text-blue-400 hover:text-blue-600">
+            Редактировать
+        </button>
+        
+    </h3>
+    <!-- Отображение описания -->
+    <p id="descriptionText" class="text-gray-400 whitespace-pre-wrap" th:text="${product.description}"></p>
+
+    <!-- Редактор -->
+    <div id="descriptionEditor" class="hidden flex flex-col space-y-2">
+        <textarea id="descriptionTextarea" class="p-2 bg-gray-800 text-white rounded w-full" rows="6"></textarea>
+        <div class="flex space-x-2">
+            <button id="saveDescriptionBtn" class="bg-green-600 px-4 py-2 rounded hover:bg-green-500">Сохранить</button>
+            <button id="cancelDescriptionBtn" class="bg-red-600 px-4 py-2 rounded hover:bg-red-500">Отмена</button>
+        </div>
+    </div>
+</div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-black border-t border-gray-800 py-12 px-6">
+    <div class="container mx-auto text-center text-gray-400 text-sm">
+        <p>© 2025 AZZLEN. Все права защищены.</p>
+        <div class="mt-4 flex justify-center space-x-6">
+            <a href="/deliveryinfo" class="hover:text-white">Доставка</a>
+            <a href="/about" class="hover:text-white">О бренде</a>
+        </div>
+    </div>
+</footer>
+
+<script>
+    function changeMainImage(thumb, imageUrl) {
+        document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+        thumb.classList.add('active');
+        document.getElementById('mainProductImage').src = imageUrl;
+    }
+
+    // function selectSize(element, sizeName) {
+    //     const currentUrl = new URL(window.location.href);
+    //     currentUrl.searchParams.set('size', sizeName);
+    //     window.location.href = currentUrl.toString();
+    // }
+
+    async function selectSize(element) {
+    const sizeName = element.getAttribute('data-size');
+
+    // снимаем выделение со всех размеров
+    document.querySelectorAll('.size-option').forEach(el => el.classList.remove('selected'));
+    element.classList.add('selected');
+
+    // Делаем запрос на сервер для получения доступных цветов
+    const response = await fetch(`/products/${productId}/sizes/${sizeName}`);
+    const data = await response.json();
+
+    // Обновляем блок с цветами
+    const colorsContainer = document.querySelector('.flex.flex-wrap.gap-3');
+    colorsContainer.innerHTML = '';
+
+    let firstColorElement = null;
+
+    data.colors.forEach((color, index) => {
+        const div = document.createElement('div');
+        div.className = "color-option";
+        div.style.backgroundColor = color.colorHex;
+        div.setAttribute('data-color-id', color.id);
+        div.setAttribute('data-color-hex', color.colorHex);
+        div.setAttribute('data-color-name', color.colorName);
+        div.onclick = () => selectColor(div);
+
+        // если это первый цвет → выделяем
+        if (index === 0) {
+            div.classList.add("selected");
+            firstColorElement = div;
+        }
+
+        colorsContainer.appendChild(div);
+    });
+
+    // Обновляем цену и наличие
+    document.getElementById('price').textContent = data.price + " UZS";
+    updateStockStatus(data.quantity);
+
+    // Автовыбор первого доступного цвета
+    if (firstColorElement) {
+        await selectColor(firstColorElement);
+    }
+}
+
+    async function selectColor(element) {
+        const colorId = element.getAttribute('data-color-id');
+
+        // снимаем выделение со всех цветов
+        document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+        element.classList.add('selected');
+
+        // Делаем запрос на сервер для получения инфо по цвету
+        const response = await fetch(`/products/${productId}/colors/${colorId}`);
+        const data = await response.json();
+
+        // Обновляем главное фото
+        document.getElementById('mainProductImage').src = data.imageUrl;
+
+        // Обновляем галерею
+        const gallery = document.getElementById('productGallery');
+        gallery.innerHTML = '';
+        const img1 = document.createElement('img');
+        img1.src = data.imageUrl;
+        img1.className = "thumbnail active rounded";
+        img1.onclick = () => changeMainImage(img1, img1.src);
+        gallery.appendChild(img1);
+
+        if (data.hoverImageUrl) {
+            const img2 = document.createElement('img');
+            img2.src = data.hoverImageUrl;
+            img2.className = "thumbnail rounded";
+            img2.onclick = () => changeMainImage(img2, img2.src);
+            gallery.appendChild(img2);
+        }
+
+        // Обновляем цену и наличие
+        document.getElementById('price').textContent = data.price + " UZS";
+        updateStockStatus(data.quantity);
+    }
+    function updateStockStatus(quantity) {
+        const availableEl = document.querySelector(".text-green-500");
+        const notAvailableEl = document.querySelector(".text-red-500");
+
+        if (quantity > 0) {
+            if (availableEl) availableEl.classList.remove("hidden");
+            if (notAvailableEl) notAvailableEl.classList.add("hidden");
+            document.getElementById("orderButton").disabled = false;
+        } else {
+            if (availableEl) availableEl.classList.add("hidden");
+            if (notAvailableEl) notAvailableEl.classList.remove("hidden");
+            document.getElementById("orderButton").disabled = true;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const orderButton = document.getElementById('orderButton');
+        if (!orderButton) return;
+        const uploadBtn = document.getElementById('uploadImagesBtn');
+    const form = document.getElementById('uploadImagesForm');
+    const cancelBtn = document.getElementById('cancelUploadBtn');
+
+    uploadBtn.addEventListener('click', () => {
+        form.classList.toggle('hidden');
+    });
+
+    cancelBtn.addEventListener('click', () => {
+        form.classList.add('hidden');
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const selectedColor = document.querySelector('.color-option.selected');
+        if (!selectedColor) {
+            alert("Сначала выберите цвет!");
+            return;
+        }
+
+        const colorId = selectedColor.getAttribute('data-color-id');
+        const formData = new FormData();
+        formData.append("mainImage", document.getElementById('mainImageInput').files[0]);
+        formData.append("hoverImage", document.getElementById('hoverImageInput').files[0]);
+
+        const response = await fetch(`/products/${productId}/colors/${colorId}/images`, {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            alert("Фотографии обновлены!");
+            location.reload();
+        } else {
+            alert("Ошибка при загрузке");
+        }
+    });
+        orderButton.addEventListener('click', function() {
+            const productName = document.querySelector('.section-title').textContent;
+            const price = document.getElementById('price').textContent;
+            
+            const colorElement = document.querySelector('.color-option.selected');
+            const color = colorElement ? colorElement.getAttribute('data-color-name') : 'не выбран';
+            
+            const sizeElement = document.querySelector('.size-option.selected');
+            const size = sizeElement ? sizeElement.textContent : 'не выбран';
+
+            const encodedMessage = encodeURIComponent(
+                `Здравствуйте! Я хочу заказать:\n\n` +
+                `Товар: ${productName}\n` +
+                `Цена: ${price}\n` +
+                `Размер: ${size}\n` +
+                `Цвет: ${color}\n\n` +
+                `Пожалуйста, свяжитесь со мной для подтверждения заказа.`
+            );
+            
+            const telegramLink = `https://t.me/huntuzavvvr?text=${encodedMessage}`;
+            window.open(telegramLink, '_blank');
+        });
+    });
+    const editBtn = document.getElementById('editDescriptionBtn');
+    const saveBtn = document.getElementById('saveDescriptionBtn');
+    const cancelBtn = document.getElementById('cancelDescriptionBtn');
+    const descriptionText = document.getElementById('descriptionText');
+    const editor = document.getElementById('descriptionEditor');
+    const textarea = document.getElementById('descriptionTextarea');
+
+    editBtn.addEventListener('click', () => {
+        textarea.value = descriptionText.textContent;
+        descriptionText.classList.add('hidden');
+        editor.classList.remove('hidden');
+    });
+
+    cancelBtn.addEventListener('click', () => {
+        descriptionText.classList.remove('hidden');
+        editor.classList.add('hidden');
+    });
+
+    saveBtn.addEventListener('click', () => {
+        const newDescription = textarea.value;
+
+        fetch(`/products/${productId}/description`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ description: newDescription })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                descriptionText.textContent = newDescription;
+                descriptionText.classList.remove('hidden');
+                editor.classList.add('hidden');
+            }
+        });
+    });
+    const productId = [[${product.id}]];
+</script>
 
 </body>
 </html>

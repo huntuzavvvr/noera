@@ -24,4 +24,8 @@ public class ColorService {
     public ProductColor findById(Integer colorId) {
         return repository.findById(colorId).orElse(null);
     }
+
+    public void save(ProductColor color) {
+        repository.save(color);
+    }
 }

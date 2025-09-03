@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${product.name} + ' | NOERA'">NOERA - Выбор товара</title>
+    <title th:text="${product.name} + ' | AZZLEN'">AZZLEN - Выбор товара</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -42,10 +42,10 @@
 <header class="sticky top-0 z-50 border-b border-gray-800 bg-black bg-opacity-90">
     <div class="container mx-auto px-4 py-4 flex items-center">
         <a href="/" class="flex items-center">
-            <span class="logo-font text-3xl text-white">NOERA</span>
+            <span class="logo-font text-3xl text-white">AZZLEN</span>
         </a>
         <div class="ml-auto flex space-x-4">
-            <a href="https://t.me/noeraprod" class="text-white hover:text-gray-400 text-xl">
+            <a href="https://t.me/azzlenprod" class="text-white hover:text-gray-400 text-xl">
                 <i class="fab fa-telegram"></i>
             </a>
         </div>
@@ -125,14 +125,14 @@
                 </div>
 
                 <div class="mt-4">
-        <button id="uploadImagesBtn" 
+        <!-- <button id="uploadImagesBtn" 
             class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-500 text-white">
             Загрузить фото для выбранного цвета
-        </button>
+        </button> -->
     </div>
 
     <!-- Форма загрузки -->
-    <form id="uploadImagesForm" class="hidden mt-3 space-y-2" enctype="multipart/form-data">
+    <!-- <form id="uploadImagesForm" class="hidden mt-3 space-y-2" enctype="multipart/form-data">
         <input type="file" id="mainImageInput" name="mainImage" accept="image/*" class="block w-full text-sm text-gray-300"/>
         <input type="file" id="hoverImageInput" name="hoverImage" accept="image/*" class="block w-full text-sm text-gray-300"/>
         <button type="submit" class="bg-green-600 px-4 py-2 rounded hover:bg-green-500 text-white">
@@ -141,7 +141,7 @@
         <button type="button" id="cancelUploadBtn" class="bg-red-600 px-4 py-2 rounded hover:bg-red-500 text-white">
             Отмена
         </button>
-    </form>
+    </form> -->
             </div>
             
 
@@ -156,22 +156,22 @@
             <div class="border-t border-gray-800 pt-6 relative">
     <h3 class="text-lg font-semibold mb-3 flex items-center">
         ОПИСАНИЕ
-        <button id="editDescriptionBtn" class="ml-4 text-sm text-blue-400 hover:text-blue-600">
+        <!-- <button id="editDescriptionBtn" class="ml-4 text-sm text-blue-400 hover:text-blue-600">
             Редактировать
-        </button>
+        </button> -->
         
     </h3>
     <!-- Отображение описания -->
     <p id="descriptionText" class="text-gray-400 whitespace-pre-wrap" th:text="${product.description}"></p>
 
     <!-- Редактор -->
-    <div id="descriptionEditor" class="hidden flex flex-col space-y-2">
+    <!-- <div id="descriptionEditor" class="hidden flex flex-col space-y-2">
         <textarea id="descriptionTextarea" class="p-2 bg-gray-800 text-white rounded w-full" rows="6"></textarea>
         <div class="flex space-x-2">
             <button id="saveDescriptionBtn" class="bg-green-600 px-4 py-2 rounded hover:bg-green-500">Сохранить</button>
             <button id="cancelDescriptionBtn" class="bg-red-600 px-4 py-2 rounded hover:bg-red-500">Отмена</button>
         </div>
-    </div>
+    </div> -->
 </div>
         </div>
     </div>
@@ -180,7 +180,7 @@
 <!-- Footer -->
 <footer class="bg-black border-t border-gray-800 py-12 px-6">
     <div class="container mx-auto text-center text-gray-400 text-sm">
-        <p>© 2025 NOERA. Все права защищены.</p>
+        <p>© 2025 AZZLEN. Все права защищены.</p>
         <div class="mt-4 flex justify-center space-x-6">
             <a href="/deliveryinfo" class="hover:text-white">Доставка</a>
             <a href="/about" class="hover:text-white">О бренде</a>
@@ -299,44 +299,44 @@
     document.addEventListener('DOMContentLoaded', function() {
         const orderButton = document.getElementById('orderButton');
         if (!orderButton) return;
-        const uploadBtn = document.getElementById('uploadImagesBtn');
-    const form = document.getElementById('uploadImagesForm');
-    const cancelBtn = document.getElementById('cancelUploadBtn');
+        // const uploadBtn = document.getElementById('uploadImagesBtn');
+    // const form = document.getElementById('uploadImagesForm');
+    // const cancelBtn = document.getElementById('cancelUploadBtn');
 
-    uploadBtn.addEventListener('click', () => {
-        form.classList.toggle('hidden');
-    });
+    // uploadBtn.addEventListener('click', () => {
+    //     form.classList.toggle('hidden');
+    // });
 
-    cancelBtn.addEventListener('click', () => {
-        form.classList.add('hidden');
-    });
+    // cancelBtn.addEventListener('click', () => {
+    //     form.classList.add('hidden');
+    // });
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const selectedColor = document.querySelector('.color-option.selected');
-        if (!selectedColor) {
-            alert("Сначала выберите цвет!");
-            return;
-        }
+    // form.addEventListener('submit', async (e) => {
+    //     e.preventDefault();
+    //     const selectedColor = document.querySelector('.color-option.selected');
+    //     if (!selectedColor) {
+    //         alert("Сначала выберите цвет!");
+    //         return;
+    //     }
 
-        const colorId = selectedColor.getAttribute('data-color-id');
-        const formData = new FormData();
-        formData.append("mainImage", document.getElementById('mainImageInput').files[0]);
-        formData.append("hoverImage", document.getElementById('hoverImageInput').files[0]);
+    //     const colorId = selectedColor.getAttribute('data-color-id');
+    //     const formData = new FormData();
+    //     formData.append("mainImage", document.getElementById('mainImageInput').files[0]);
+    //     formData.append("hoverImage", document.getElementById('hoverImageInput').files[0]);
 
-        const response = await fetch(`/products/${productId}/colors/${colorId}/images`, {
-            method: "POST",
-            body: formData
-        });
+    //     const response = await fetch(`/products/${productId}/colors/${colorId}/images`, {
+    //         method: "POST",
+    //         body: formData
+    //     });
 
-        const result = await response.json();
-        if (result.success) {
-            alert("Фотографии обновлены!");
-            location.reload();
-        } else {
-            alert("Ошибка при загрузке");
-        }
-    });
+    //     const result = await response.json();
+    //     if (result.success) {
+    //         alert("Фотографии обновлены!");
+    //         location.reload();
+    //     } else {
+    //         alert("Ошибка при загрузке");
+    //     }
+    // });
         orderButton.addEventListener('click', function() {
             const productName = document.querySelector('.section-title').textContent;
             const price = document.getElementById('price').textContent;
@@ -360,41 +360,41 @@
             window.open(telegramLink, '_blank');
         });
     });
-    const editBtn = document.getElementById('editDescriptionBtn');
-    const saveBtn = document.getElementById('saveDescriptionBtn');
-    const cancelBtn = document.getElementById('cancelDescriptionBtn');
-    const descriptionText = document.getElementById('descriptionText');
-    const editor = document.getElementById('descriptionEditor');
-    const textarea = document.getElementById('descriptionTextarea');
+    // const editBtn = document.getElementById('editDescriptionBtn');
+    // const saveBtn = document.getElementById('saveDescriptionBtn');
+    // const cancelBtn = document.getElementById('cancelDescriptionBtn');
+    // const descriptionText = document.getElementById('descriptionText');
+    // const editor = document.getElementById('descriptionEditor');
+    // const textarea = document.getElementById('descriptionTextarea');
 
-    editBtn.addEventListener('click', () => {
-        textarea.value = descriptionText.textContent;
-        descriptionText.classList.add('hidden');
-        editor.classList.remove('hidden');
-    });
+    // editBtn.addEventListener('click', () => {
+    //     textarea.value = descriptionText.textContent;
+    //     descriptionText.classList.add('hidden');
+    //     editor.classList.remove('hidden');
+    // });
 
-    cancelBtn.addEventListener('click', () => {
-        descriptionText.classList.remove('hidden');
-        editor.classList.add('hidden');
-    });
+    // cancelBtn.addEventListener('click', () => {
+    //     descriptionText.classList.remove('hidden');
+    //     editor.classList.add('hidden');
+    // });
 
-    saveBtn.addEventListener('click', () => {
-        const newDescription = textarea.value;
+    // saveBtn.addEventListener('click', () => {
+    //     const newDescription = textarea.value;
 
-        fetch(`/products/${productId}/description`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ description: newDescription })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                descriptionText.textContent = newDescription;
-                descriptionText.classList.remove('hidden');
-                editor.classList.add('hidden');
-            }
-        });
-    });
+    //     fetch(`/products/${productId}/description`, {
+    //         method: 'POST',
+    //         headers: {'Content-Type': 'application/json'},
+    //         body: JSON.stringify({ description: newDescription })
+    //     })
+    //     .then(res => res.json())
+    //     .then(data => {
+    //         if (data.success) {
+    //             descriptionText.textContent = newDescription;
+    //             descriptionText.classList.remove('hidden');
+    //             editor.classList.add('hidden');
+    //         }
+    //     });
+    // });
     const productId = [[${product.id}]];
 </script>
 

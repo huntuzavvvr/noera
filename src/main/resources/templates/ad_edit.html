@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AZZLEN | Админ — Редактирование товара</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+<header class="bg-black text-white px-6 py-4 flex items-center justify-between">
+    <h1 class="text-2xl font-bold">AZZLEN | Админ</h1>
+    <a href="/admin/products" class="hover:underline">Назад к товарам</a>
+</header>
+
+<main class="container mx-auto px-6 py-10">
+    <h2 class="text-3xl font-bold mb-8">Редактирование товара</h2>
+
+    <!-- Форма редактирования товара -->
+    <form th:action="@{/admin/products/save}" th:object="${product}" method="post" enctype="multipart/form-data">
+
+    <input type="hidden" th:field="*{id}"/>
+
+    <label>Название товара</label>
+    <input type="text" th:field="*{name}" class="w-full border p-2"/>
+
+    <label>Цена</label>
+    <input type="number" th:field="*{price}" class="w-full border p-2"/>
+
+    <label>Описание</label>
+    <textarea th:field="*{description}" class="w-full border p-2"></textarea>
+
+    <!-- Размеры -->
+    <div th:each="size, si : *{sizes}" class="border p-4 mt-4 bg-gray-50 rounded">
+        <input type="hidden" th:field="*{sizes[__${si.index}__].id}"/>
+
+        <label>Размер</label>
+        <input type="text" th:field="*{sizes[__${si.index}__].sizeName}" class="border p-2"/>
+
+        <!-- Цвета -->
+        <div th:each="color, ci : *{sizes[__${si.index}__].colors}" class="p-3 border rounded mt-3 bg-white">
+            <input type="hidden" th:field="*{sizes[__${si.index}__].colors[__${ci.index}__].id}"/>
+
+            <label>Цвет</label>
+            <input type="text" th:field="*{sizes[__${si.index}__].colors[__${ci.index}__].colorName}" class="border p-2"/>
+
+            <label>HEX</label>
+            <input type="color" th:field="*{sizes[__${si.index}__].colors[__${ci.index}__].colorHex}" class="border"/>
+
+            <label>Количество</label>
+            <input type="number" th:field="*{sizes[__${si.index}__].colors[__${ci.index}__].quantity}" class="border p-2"/>
+
+            <label>Фото</label>
+            <input type="file" th:field="*{sizes[__${si.index}__].colors[__${ci.index}__].imageFile}" accept="image/*"/>
+
+            <label>Hover фото</label>
+            <input type="file" th:field="*{sizes[__${si.index}__].colors[__${ci.index}__].hoverImageFile}" accept="image/*"/>
+        </div>
+    </div>
+
+    <button type="submit" class="mt-6 bg-black text-white px-4 py-2 rounded">Сохранить</button>
+</form>
+</main>
+
+</body>
+</html>
